@@ -1,11 +1,12 @@
+import asyncio
 import configparser
 import logging
 import sys
-import traceback
 import time
+import traceback
 from datetime import datetime
+
 import discord
-import asyncio
 import requests
 
 logging.basicConfig(filename="latest.log", filemode="w", level=logging.INFO, format="%(asctime)s:%(levelname)s:%("
