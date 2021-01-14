@@ -66,7 +66,7 @@ class Client(discord.Client):
     server_last_online_timestamp = 0
     # timestamp in sekunden
     server_next_restart_timestamp = 0
-    server_last_offline = 0
+    server_last_offline = get_timestamp()
     status_message = None
     status_channel = None
 
