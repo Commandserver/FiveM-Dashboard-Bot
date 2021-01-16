@@ -22,29 +22,18 @@ RESTART_MESSAGE = str(config.get("Restart-Detection", "restart-detection-message
 RESTART_WARN_MSG = str(config.get("Restart-Detection", "restart-warn-message"))
 RESTART_WARN_DELAY = int(config.get("Restart-Detection", "restart-warn-delay"))
 FIVEM_SERVER_IP = str(config.get("Settings", "fivem-server-ip"))
-SERVER_DOMAIN = str(config.get("Status-Message", "server-domain"))
-
-
-class Server:
-    info = {}
-    players = {}
-
-
-class Intervals:
-    day = 86400
-    hour = 3600
-    minute = 60
+SERVER_DOMAIN = str(config.get("Status-Message", "fivem-domain"))
 
 
 def get_server(addr):
     serv = Server()
     try:
-        r = requests.get("http://" + addr + "/info.json", timeout=8)
+        r = requests.get("http://" + addr + "/info.json", timeout=6)
         serv.info = r.json()
-        r = requests.get("http://" + addr + "/players.json", timeout=8)
+        r = requests.get("http://" + addr + "/players.json", timeout=6)
         serv.players = r.json()
     except requests.exceptions.Timeout:
-        logging.warning("Request to the FiveM-Server timed out")
+        logging.warning("Request to the FiveM-Server (" + FIVEM_SERVER_IP + ") timed out")
         del serv
         return False
     except requests.exceptions.InvalidURL:
@@ -61,16 +50,27 @@ def get_timestamp() -> int:
     return int(time.time())
 
 
-class Client(discord.Client):
-    server_is_restarting = False
-    # timestamp in sekunden
-    server_last_online_timestamp = 0
-    # timestamp in sekunden
-    server_next_restart_timestamp = 0
-    server_last_offline = get_timestamp()
+class Server:
+    info = {}
+    players = {}
+
+
+class Intervals:
+    day = 86400
+    hour = 3600
+    minute = 60
+
+
+class FiveMServer:
+    is_restarting = False
+    last_offline = 0  # timestamp in seconds
+    last_online = 0  # timestamp in seconds
+    next_restart = 0  # timestamp in seconds
     status_message = None
     status_channel = None
 
+
+class Client(discord.Client):
     async def on_error(self, *args, **kwargs):
         logging.error(traceback.format_exc())
 
@@ -79,7 +79,7 @@ class Client(discord.Client):
         logging.info("Logged in as " + str(client.user.name) + " (" + str(client.user.id) + ")")
         await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching,
                                                                name=str(config.get("Settings", "status-message"))))
-        self.status_channel = self.get_channel(STATUS_CHANNEL_ID)
+        FiveMServer.status_channel = self.get_channel(STATUS_CHANNEL_ID)
         await self.edit_status_message(discord.Embed(title="Dashboard-Bot wurde neu gestartet"))
 
         while True:
@@ -97,40 +97,42 @@ class Client(discord.Client):
         if message.author.id == FIVEM_BOT_ID:
             lower_message = str(message.content).lower()
             if RESTART_MESSAGE.lower() in lower_message:
-                self.server_is_restarting = True
-                self.server_last_online_timestamp = get_timestamp()
-                self.server_last_offline = get_timestamp()
+                FiveMServer.is_restarting = True
+                FiveMServer.last_online = get_timestamp()
+                FiveMServer.last_offline = get_timestamp()
                 # status-nachricht aktualisieren
                 embed = self.create_status_restart()
                 await self.edit_status_message(embed)
                 del embed
 
             elif RESTART_WARN_MSG.lower() in lower_message:
-                self.server_next_restart_timestamp = (get_timestamp() + RESTART_WARN_DELAY * 60)
+                FiveMServer.next_restart = (get_timestamp() + RESTART_WARN_DELAY * 60)
 
     async def edit_status_message(self, embed):
         try:
-            await self.status_message.edit(embed=embed)
+            await FiveMServer.status_message.edit(embed=embed)
         except Exception:
             await self.clear_status_channel(10)
-            self.status_message = await self.status_channel.send(embed=embed)
+            FiveMServer.status_message = await FiveMServer.status_channel.send(embed=embed)
 
     async def clear_status_channel(self, number_of_messages):
-        await self.status_channel.purge(limit=number_of_messages)
+        await FiveMServer.status_channel.purge(limit=number_of_messages)
 
     async def update_status(self):
         server = get_server(FIVEM_SERVER_IP)
         if server is not False and (
-                self.server_last_online_timestamp + (STATUS_UPDATE_INTERVAL * 2)) < get_timestamp():
-            self.server_is_restarting = False
+                FiveMServer.last_online + (STATUS_UPDATE_INTERVAL * 2)) < get_timestamp():
+            FiveMServer.is_restarting = False
             embed = self.create_status_online(server)
 
-        elif self.server_is_restarting is True:
-            self.server_last_offline = get_timestamp()
+        elif FiveMServer.is_restarting is True:
+            if FiveMServer.last_online + Intervals.minute < get_timestamp():
+                FiveMServer.is_restarting = False
+            FiveMServer.last_offline = get_timestamp()
             embed = self.create_status_restart()
 
         else:
-            self.server_last_offline = get_timestamp()
+            FiveMServer.last_offline = get_timestamp()
             embed = self.create_status_offline()
 
         await self.edit_status_message(embed)
@@ -144,18 +146,18 @@ class Client(discord.Client):
 
     def create_status_online(self, server) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "Server ist aktuell **Online!** :white_check_mark:"
+        embed.title = "**Server** ist aktuell **Online!** :white_check_mark:"
         embed.colour = 0x74EE15
         embed.add_field(name="**FiveM:**", value="`" + SERVER_DOMAIN + "`", inline=False)
         max_players = str(server.info["vars"]["sv_maxClients"])
         players = str(len(server.players))
         embed.add_field(name="**Spieler:**", value="`" + players + " / " + max_players + "`", inline=False)
         # online-zeit field hinzufügen
-        if self.server_last_offline > 0 and self.server_last_offline + 60 < get_timestamp():
+        if FiveMServer.last_offline > 0 and FiveMServer.last_offline + 60 < get_timestamp():
             embed.add_field(name="**Onlinezeit:**", value="`" + self.get_calculated_online_time_str() + "`")
         # neustart message hinzufügen
-        if self.server_next_restart_timestamp > get_timestamp():
-            diff = self.server_next_restart_timestamp - get_timestamp()
+        if FiveMServer.next_restart > get_timestamp():
+            diff = FiveMServer.next_restart - get_timestamp()
             r_time = int(diff / 60) + 1
             if r_time <= 1:
                 embed.description = ":warning: Server wird gleich neu gestartet!"
@@ -168,20 +170,20 @@ class Client(discord.Client):
 
     def create_status_restart(self) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "Server wird neu gestartet!"
+        embed.title = "**Server** wird neu gestartet!"
         embed.colour = 0xFFAC00
         embed.description = "**FiveM:** `" + SERVER_DOMAIN + "`"
         return embed
 
     def create_status_offline(self) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "Server ist aktuell **Offline!** :no_entry:"
+        embed.title = "**Server** ist aktuell **Offline!** :no_entry:"
         embed.colour = 0xFF0000
         embed.description = "**FiveM:** `" + SERVER_DOMAIN + "`"
         return embed
 
     def get_calculated_online_time_str(self) -> str:
-        diff = get_timestamp() - self.server_last_offline
+        diff = get_timestamp() - FiveMServer.last_offline
         days = int(diff / Intervals.day)
         hours = int((diff - (Intervals.day * days)) / Intervals.hour)
         minutes = int((diff - ((Intervals.day * days) + (Intervals.hour * hours))) / Intervals.minute)
