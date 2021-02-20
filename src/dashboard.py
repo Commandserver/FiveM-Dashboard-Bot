@@ -23,14 +23,13 @@ RESTART_WARN_MSG = str(config.get("Restart-Detection", "restart-warn-message"))
 RESTART_WARN_DELAY = int(config.get("Restart-Detection", "restart-warn-delay"))
 FIVEM_SERVER_IP = str(config.get("Settings", "fivem-server-ip"))
 SERVER_DOMAIN = str(config.get("Status-Message", "fivem-domain"))
+FIVEM_MAX_PLAYERS = str(config.get("Settings", "max-players"))
 
 
 def get_server(addr):
     serv = Server()
     try:
-        r = requests.get("http://" + addr + "/info.json", timeout=6)
-        serv.info = r.json()
-        r = requests.get("http://" + addr + "/players.json", timeout=6)
+        r = requests.get("http://" + addr + "/players.json", timeout=3)
         serv.players = r.json()
     except requests.exceptions.Timeout:
         logging.warning("Request to the FiveM-Server (" + FIVEM_SERVER_IP + ") timed out")
@@ -40,10 +39,11 @@ def get_server(addr):
         logging.warning("Request failed. The IP " + FIVEM_SERVER_IP + " seems to be invalid")
         del serv
         return False
-    except Exception:
+    except:
         del serv
         return False
-    return serv
+    else:
+        return serv
 
 
 def get_timestamp() -> int:
@@ -51,7 +51,6 @@ def get_timestamp() -> int:
 
 
 class Server:
-    info = {}
     players = {}
 
 
@@ -87,14 +86,11 @@ class Client(discord.Client):
             await asyncio.sleep(STATUS_UPDATE_INTERVAL)
 
     async def on_message(self, message):
-        # nichts tun wenn nicht von einem bot
         if not message.author.bot:
             return
-        # nichts tun wenn vom bot selbst
-        if message.author == client.user:
+        elif message.author == client.user:
             return
-        # wenn vom fivem bot gesendet
-        if message.author.id == FIVEM_BOT_ID:
+        elif message.author.id == FIVEM_BOT_ID:
             lower_message = str(message.content).lower()
             if RESTART_MESSAGE.lower() in lower_message:
                 FiveMServer.is_restarting = True
@@ -111,7 +107,10 @@ class Client(discord.Client):
     async def edit_status_message(self, embed):
         try:
             await FiveMServer.status_message.edit(embed=embed)
-        except Exception:
+        except discord.HTTPException as e:
+            logging.error(str(e))
+            return
+        except:
             await self.clear_status_channel(10)
             FiveMServer.status_message = await FiveMServer.status_channel.send(embed=embed)
 
@@ -149,9 +148,8 @@ class Client(discord.Client):
         embed.title = "**Server** ist aktuell **Online!** :white_check_mark:"
         embed.colour = 0x74EE15
         embed.add_field(name="**FiveM:**", value="`" + SERVER_DOMAIN + "`", inline=False)
-        max_players = str(server.info["vars"]["sv_maxClients"])
         players = str(len(server.players))
-        embed.add_field(name="**Spieler:**", value="`" + players + " / " + max_players + "`", inline=False)
+        embed.add_field(name="**Spieler:**", value="`" + players + " / " + FIVEM_MAX_PLAYERS + "`", inline=False)
         # online-zeit field hinzufügen
         if FiveMServer.last_offline > 0 and FiveMServer.last_offline + 60 < get_timestamp():
             embed.add_field(name="**Onlinezeit:**", value="`" + self.get_calculated_online_time_str() + "`")
