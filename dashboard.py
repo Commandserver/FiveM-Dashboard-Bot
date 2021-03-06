@@ -27,18 +27,19 @@ FIVEM_MAX_PLAYERS = str(config.get("Settings", "max-players"))
 
 
 def get_server(addr):
+    """
+    Gets a server's players.json data
+    :param addr: The IPv4 of the server
+    :return: Returns Server object on success, None when the server is not reachable,
+    Otherwise False when the server is offline or on error
+    """
     serv = Server()
     try:
         r = requests.get("http://" + addr + "/players.json", timeout=3)
         serv.players = r.json()
-    except requests.exceptions.Timeout:
-        logging.warning("Request to the FiveM-Server (" + FIVEM_SERVER_IP + ") timed out")
+    except (requests.exceptions.Timeout, requests.exceptions.URLRequired, requests.exceptions.InvalidURL):
         del serv
-        return False
-    except requests.exceptions.InvalidURL:
-        logging.warning("Request failed. The IP " + FIVEM_SERVER_IP + " seems to be invalid")
-        del serv
-        return False
+        return None
     except:
         del serv
         return False
@@ -119,7 +120,7 @@ class Client(discord.Client):
 
     async def update_status(self):
         server = get_server(FIVEM_SERVER_IP)
-        if server is not False and (
+        if server is not (False or None) and (
                 FiveMServer.last_online + (STATUS_UPDATE_INTERVAL * 2)) < get_timestamp():
             FiveMServer.is_restarting = False
             embed = self.create_status_online(server)
@@ -132,7 +133,10 @@ class Client(discord.Client):
 
         else:
             FiveMServer.last_offline = get_timestamp()
-            embed = self.create_status_offline()
+            if server is None:
+                embed = self.create_status_not_reachable()
+            else:
+                embed = self.create_status_offline()
 
         await self.edit_status_message(embed)
         del server
@@ -178,6 +182,13 @@ class Client(discord.Client):
         embed.title = "**Server** ist aktuell **Offline!** :no_entry:"
         embed.colour = 0xFF0000
         embed.description = "**FiveM:** `" + SERVER_DOMAIN + "`"
+        return embed
+
+    def create_status_not_reachable(self) -> discord.Embed:
+        embed = self.create_status_template()
+        embed.title = "**Server** ist aktuell **Nicht erreichbar!** :no_entry:"
+        embed.colour = 0xFF0000
+        embed.description = "```ping >3000```\n**FiveM:** `" + SERVER_DOMAIN + "`"
         return embed
 
     def get_calculated_online_time_str(self) -> str:
