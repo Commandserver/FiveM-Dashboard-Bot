@@ -108,9 +108,6 @@ class Client(discord.Client):
     async def edit_status_message(self, embed):
         try:
             await FiveMServer.status_message.edit(embed=embed)
-        except discord.HTTPException as e:
-            logging.error(str(e))
-            return
         except:
             await self.clear_status_channel(10)
             FiveMServer.status_message = await FiveMServer.status_channel.send(embed=embed)
@@ -120,7 +117,7 @@ class Client(discord.Client):
 
     async def update_status(self):
         server = get_server(FIVEM_SERVER_IP)
-        if server is not (False or None) and (
+        if server is not False and server is not None and (
                 FiveMServer.last_online + (STATUS_UPDATE_INTERVAL * 2)) < get_timestamp():
             FiveMServer.is_restarting = False
             embed = self.create_status_online(server)
