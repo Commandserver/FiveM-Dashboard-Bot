@@ -80,7 +80,7 @@ class Client(discord.Client):
         await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching,
                                                                name=str(config.get("Settings", "status-message"))))
         FiveMServer.status_channel = self.get_channel(STATUS_CHANNEL_ID)
-        await self.edit_status_message(discord.Embed(title="Dashboard-Bot wurde neu gestartet"))
+        await self.edit_status_message(discord.Embed(title="Restarted Dashboard"))
 
         while True:
             await self.update_status()
@@ -97,7 +97,7 @@ class Client(discord.Client):
                 FiveMServer.is_restarting = True
                 FiveMServer.last_online = get_timestamp()
                 FiveMServer.last_offline = get_timestamp()
-                # status-nachricht aktualisieren
+                # update status message
                 embed = self.create_status_restart()
                 await self.edit_status_message(embed)
                 del embed
@@ -141,49 +141,49 @@ class Client(discord.Client):
 
     def create_status_template(self) -> discord.Embed:
         embed = discord.Embed()
-        embed.set_footer(text="Zuletzt aktualisiert: " + datetime.now().strftime("%d.%m.%Y %H:%M:%S"))
+        embed.set_footer(text="Last updated: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         return embed
 
     def create_status_online(self, server) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "**Server** ist aktuell **Online!** :white_check_mark:"
+        embed.title = "**Server** is currently **Online!** :white_check_mark:"
         embed.colour = 0x74EE15
         embed.add_field(name="**FiveM:**", value="`" + SERVER_DOMAIN + "`", inline=False)
         players = str(len(server.players))
-        embed.add_field(name="**Spieler:**", value="`" + players + " / " + FIVEM_MAX_PLAYERS + "`", inline=False)
+        embed.add_field(name="**Players:**", value="`" + players + " / " + FIVEM_MAX_PLAYERS + "`", inline=False)
         # online-zeit field hinzufügen
         if FiveMServer.last_offline > 0 and FiveMServer.last_offline + 60 < get_timestamp():
-            embed.add_field(name="**Onlinezeit:**", value="`" + self.get_calculated_online_time_str() + "`")
+            embed.add_field(name="**Uptime:**", value="`" + self.get_calculated_online_time_str() + "`")
         # neustart message hinzufügen
         if FiveMServer.next_restart > get_timestamp():
             diff = FiveMServer.next_restart - get_timestamp()
             r_time = int(diff / 60) + 1
             if r_time <= 1:
-                embed.description = ":warning: Server wird gleich neu gestartet!"
+                embed.description = ":warning: Server will be restarted in a moment!"
             else:
-                embed.description = ":warning: Server wird in " + str(
-                    r_time) + " Minuten neu gestartet!"
+                embed.description = ":warning: Server restarts in " + str(
+                    r_time) + " minutes!"
             del r_time
             del diff
         return embed
 
     def create_status_restart(self) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "**Server** wird neu gestartet!"
+        embed.title = "**Server** is restarting!"
         embed.colour = 0xFFAC00
         embed.description = "**FiveM:** `" + SERVER_DOMAIN + "`"
         return embed
 
     def create_status_offline(self) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "**Server** ist aktuell **Offline!** :no_entry:"
+        embed.title = "**Server** is currently **Offline!** :no_entry:"
         embed.colour = 0xFF0000
         embed.description = "**FiveM:** `" + SERVER_DOMAIN + "`"
         return embed
 
     def create_status_not_reachable(self) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "**Server** ist aktuell **Nicht erreichbar!** :no_entry:"
+        embed.title = "**Server** is currently **Not available!** :no_entry:"
         embed.colour = 0xFF0000
         embed.description = "```ping >3000```\n**FiveM:** `" + SERVER_DOMAIN + "`"
         return embed
@@ -195,17 +195,17 @@ class Client(discord.Client):
         minutes = int((diff - ((Intervals.day * days) + (Intervals.hour * hours))) / Intervals.minute)
         liste = []
         if days == 1:
-            liste.append("1 Tag")
+            liste.append("1 day")
         elif days > 1:
-            liste.append(str(days) + " Tage")
+            liste.append(str(days) + " days")
         if hours == 1:
-            liste.append("1 Stunde")
+            liste.append("1 hour")
         elif hours > 1:
-            liste.append(str(hours) + " Stunden")
+            liste.append(str(hours) + " hours")
         if minutes == 1:
-            liste.append("1 Minute")
+            liste.append("1 minute")
         elif minutes > 1:
-            liste.append(str(minutes) + " Minuten")
+            liste.append(str(minutes) + " minutes")
         trennzeichen = ", "
         return trennzeichen.join(liste)
 
