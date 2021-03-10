@@ -1,12 +1,12 @@
 # FiveM-Dashboard-Bot
 Monitor your FiveM Server on your Discord with this Bot
 
-Written for python3.7 or python3.8
-
 ### Example:
 
-![](https://i.imgur.com/Vc6iQCO.png)
+![](https://i.imgur.com/iGaMvXm.png)
 
-![](https://i.imgur.com/PkRN0mp.png)
+![](https://i.imgur.com/RRhiyPc.png)
+
+Uses the players.json of the Fivem server to count the players.
 
 This Bot was made for [Flixrp.net](https://www.flixrp.net/)
