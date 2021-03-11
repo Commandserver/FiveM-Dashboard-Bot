@@ -1,7 +1,7 @@
 # FiveM-Dashboard-Bot
 Monitor your FiveM Server on your Discord with this Bot
 
-### Example:
+### Preview:
 
 ![](https://i.imgur.com/iGaMvXm.png)
 
