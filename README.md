@@ -6,13 +6,13 @@
     <h4>Monitor your FiveM server on your Discord server with this bot.</h4>
   </p>
   <p>
-    <a href="https://github.com/flameshot-org/flameshot/releases">
+    <a href="https://github.com/Commandserver/FiveM-Dashboard-Bot/releases">
       <img src="https://img.shields.io/github/release/Commandserver/FiveM-Dashboard-Bot.svg?style=flat" alt="Latest Stable Release" />
     </a>
-    <a href="https://github.com/flameshot-org/flameshot/releases">
+    <a href="https://github.com/Commandserver/FiveM-Dashboard-Bot/releases">
       <img src="https://img.shields.io/github/downloads/Commandserver/FiveM-Dashboard-Bot/total.svg?style=flat&color=green" alt="Total Downloads" />
     </a>
-    <a href="https://github.com/flameshot-org/flameshot/blob/master/LICENSE">
+    <a href="https://github.com/Commandserver/FiveM-Dashboard-Bot/blob/master/LICENSE">
       <img src="https://img.shields.io/github/license/Commandserver/FiveM-Dashboard-Bot.svg?style=flat" alt="License" />
     </a>
   </p>
