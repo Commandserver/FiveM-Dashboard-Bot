@@ -20,9 +20,9 @@
 
 ## Preview:
 
-![](https://i.imgur.com/iGaMvXm.png)
+![](https://camo.githubusercontent.com/ee8c96a89212b49bf45bae41efba2112082a1dc7e5cadc8315af3268c2936465/68747470733a2f2f692e696d6775722e636f6d2f6947614d76586d2e706e67)
 
-![](https://i.imgur.com/RRhiyPc.png)
+![](https://camo.githubusercontent.com/2d6b2194dd4e1d3563e0e7de9a0b8c81bd271da797b716d5fa8952c72ea4b58c/68747470733a2f2f692e696d6775722e636f6d2f525268697950632e706e67)
 
 It uses the players.json of the FiveM server to count the players.
 
