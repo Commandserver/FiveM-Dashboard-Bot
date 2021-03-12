@@ -151,10 +151,10 @@ class Client(discord.Client):
         embed.add_field(name="**FiveM:**", value="`" + SERVER_DOMAIN + "`", inline=False)
         players = str(len(server.players))
         embed.add_field(name="**Players:**", value="`" + players + " / " + FIVEM_MAX_PLAYERS + "`", inline=False)
-        # online-zeit field hinzufügen
+        # add uptime field
         if FiveMServer.last_offline > 0 and FiveMServer.last_offline + 60 < get_timestamp():
             embed.add_field(name="**Uptime:**", value="`" + self.get_calculated_online_time_str() + "`")
-        # neustart message hinzufügen
+        # add restart-warn-message
         if FiveMServer.next_restart > get_timestamp():
             diff = FiveMServer.next_restart - get_timestamp()
             r_time = int(diff / 60) + 1
