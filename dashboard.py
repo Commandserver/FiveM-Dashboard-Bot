@@ -26,36 +26,31 @@ SERVER_DOMAIN = str(config.get("Status-Message", "fivem-domain"))
 FIVEM_MAX_PLAYERS = str(config.get("Settings", "max-players"))
 
 
-def get_server(addr):
+def request_fivem_player_count(addr):
     """
     Gets a server's players.json data
     :param addr: The IPv4 of the server
     :return: Returns Server object on success, None when the server is not reachable,
     Otherwise False when the server is offline or on error
     """
-    serv = Server()
     try:
         r = requests.get("http://" + addr + "/players.json", timeout=3)
-        serv.players = r.json()
+        FiveMServer.players = len(r.json())
     except (requests.exceptions.Timeout, requests.exceptions.URLRequired, requests.exceptions.InvalidURL):
-        del serv
         return None
     except:
-        del serv
         return False
-    else:
-        return serv
+    return True
 
 
 def get_timestamp() -> int:
     return int(time.time())
 
 
-class Server:
-    players = {}
-
-
 class Intervals:
+    """
+    The seconds of each day/hour/minute
+    """
     day = 86400
     hour = 3600
     minute = 60
@@ -65,6 +60,7 @@ class FiveMServer:
     """
     Static class
     """
+    players = 0  # amount of players
     is_restarting = False
     last_offline = 0  # timestamp in seconds
     last_online = 0  # timestamp in seconds
@@ -157,11 +153,11 @@ class Client(discord.Client):
         await FiveMServer.status_channel.purge(limit=number_of_messages)
 
     async def update_status(self):
-        server = get_server(FIVEM_SERVER_IP)
-        if server is not False and server is not None and FiveMServer.is_restarting is False:
+        result = request_fivem_player_count(FIVEM_SERVER_IP)
+        if result is True and FiveMServer.is_restarting is False:
             FiveMServer.last_online = get_timestamp()
             FiveMServer.is_restarting = False
-            embed = self.create_status_online(server)
+            embed = self.create_status_online()
 
         elif FiveMServer.is_restarting is True:
             FiveMServer.is_restarting = False
@@ -170,13 +166,13 @@ class Client(discord.Client):
 
         else:
             FiveMServer.last_offline = get_timestamp()
-            if server is None:
+            if result is None:
                 embed = self.create_status_not_reachable()
             else:
                 embed = self.create_status_offline()
 
         await self.edit_status_message(embed)
-        del server
+        del result
         del embed
 
     def create_status_template(self) -> discord.Embed:
@@ -185,12 +181,12 @@ class Client(discord.Client):
         embed.set_footer(text="Last updated: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         return embed
 
-    def create_status_online(self, server) -> discord.Embed:
+    def create_status_online(self) -> discord.Embed:
         embed = self.create_status_template()
         embed.title = "**Server** is currently **online!** :white_check_mark:"
         embed.colour = 0x74EE15
-        players = str(len(server.players))
-        embed.add_field(name="**Players:**", value="`" + players + " / " + FIVEM_MAX_PLAYERS + "`", inline=False)
+        players = FiveMServer.players
+        embed.add_field(name="**Players:**", value="`" + str(players) + " / " + FIVEM_MAX_PLAYERS + "`", inline=False)
         # add uptime field
         if FiveMServer.get_uptime_seconds() > 60:
             embed.add_field(name="**Uptime:**",
