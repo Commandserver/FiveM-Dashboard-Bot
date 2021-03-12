@@ -62,12 +62,53 @@ class Intervals:
 
 
 class FiveMServer:
+    """
+    Static class
+    """
     is_restarting = False
     last_offline = 0  # timestamp in seconds
     last_online = 0  # timestamp in seconds
     next_restart = 0  # timestamp in seconds
     status_message = None
     status_channel = None
+
+    @staticmethod
+    def get_downtime_seconds() -> int:
+        if FiveMServer.last_online > 0:
+            return get_timestamp() - FiveMServer.last_online
+        else:
+            return 0
+
+    @staticmethod
+    def get_uptime_seconds() -> int:
+        if FiveMServer.last_offline > 0:
+            return get_timestamp() - FiveMServer.last_offline
+        else:
+            return 0
+
+    @staticmethod
+    def create_time_from_seconds(seconds: int) -> str:
+        """
+        Creates a formatted time string from the seconds
+        """
+        days = int(seconds / Intervals.day)
+        hours = int((seconds - (Intervals.day * days)) / Intervals.hour)
+        minutes = int((seconds - ((Intervals.day * days) + (Intervals.hour * hours))) / Intervals.minute)
+        tlist = []
+        if days == 1:
+            tlist.append("1 day")
+        elif days > 1:
+            tlist.append(str(days) + " days")
+        if hours == 1:
+            tlist.append("1 hour")
+        elif hours > 1:
+            tlist.append(str(hours) + " hours")
+        if minutes == 1:
+            tlist.append("1 minute")
+        elif minutes > 1:
+            tlist.append(str(minutes) + " minutes")
+        delimiter = ", "
+        return delimiter.join(tlist)
 
 
 class Client(discord.Client):
@@ -117,14 +158,13 @@ class Client(discord.Client):
 
     async def update_status(self):
         server = get_server(FIVEM_SERVER_IP)
-        if server is not False and server is not None and (
-                FiveMServer.last_online + (STATUS_UPDATE_INTERVAL * 2)) < get_timestamp():
+        if server is not False and server is not None and FiveMServer.is_restarting is False:
+            FiveMServer.last_online = get_timestamp()
             FiveMServer.is_restarting = False
             embed = self.create_status_online(server)
 
         elif FiveMServer.is_restarting is True:
-            if FiveMServer.last_online + Intervals.minute < get_timestamp():
-                FiveMServer.is_restarting = False
+            FiveMServer.is_restarting = False
             FiveMServer.last_offline = get_timestamp()
             embed = self.create_status_restart()
 
@@ -141,19 +181,21 @@ class Client(discord.Client):
 
     def create_status_template(self) -> discord.Embed:
         embed = discord.Embed()
+        embed.add_field(name="**FiveM:**", value="`" + SERVER_DOMAIN + "`", inline=False)
         embed.set_footer(text="Last updated: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         return embed
 
     def create_status_online(self, server) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "**Server** is currently **Online!** :white_check_mark:"
+        embed.title = "**Server** is currently **online!** :white_check_mark:"
         embed.colour = 0x74EE15
-        embed.add_field(name="**FiveM:**", value="`" + SERVER_DOMAIN + "`", inline=False)
         players = str(len(server.players))
         embed.add_field(name="**Players:**", value="`" + players + " / " + FIVEM_MAX_PLAYERS + "`", inline=False)
         # add uptime field
-        if FiveMServer.last_offline > 0 and FiveMServer.last_offline + 60 < get_timestamp():
-            embed.add_field(name="**Uptime:**", value="`" + self.get_calculated_online_time_str() + "`")
+        if FiveMServer.get_uptime_seconds() > 60:
+            embed.add_field(name="**Uptime:**",
+                            value="`" + FiveMServer.create_time_from_seconds(FiveMServer.get_uptime_seconds()) + "`",
+                            inline=False)
         # add restart-warn-message
         if FiveMServer.next_restart > get_timestamp():
             diff = FiveMServer.next_restart - get_timestamp()
@@ -171,43 +213,25 @@ class Client(discord.Client):
         embed = self.create_status_template()
         embed.title = "**Server** is restarting!"
         embed.colour = 0xFFAC00
-        embed.description = "**FiveM:** `" + SERVER_DOMAIN + "`"
         return embed
 
     def create_status_offline(self) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "**Server** is currently **Offline!** :no_entry:"
+        embed.title = "**Server** is currently **offline!** :no_entry:"
         embed.colour = 0xFF0000
-        embed.description = "**FiveM:** `" + SERVER_DOMAIN + "`"
+        # add downtime field
+        if FiveMServer.get_downtime_seconds() > 60:
+            embed.add_field(name="**Downtime:**",
+                            value="`" + FiveMServer.create_time_from_seconds(FiveMServer.get_downtime_seconds()) + "`",
+                            inline=False)
         return embed
 
     def create_status_not_reachable(self) -> discord.Embed:
         embed = self.create_status_template()
-        embed.title = "**Server** is currently **Not available!** :no_entry:"
+        embed.title = "**Server** is currently **not available!** :no_entry:"
         embed.colour = 0xFF0000
-        embed.description = "```ping >3000```\n**FiveM:** `" + SERVER_DOMAIN + "`"
+        embed.description = "```ping >3000```"
         return embed
-
-    def get_calculated_online_time_str(self) -> str:
-        diff = get_timestamp() - FiveMServer.last_offline
-        days = int(diff / Intervals.day)
-        hours = int((diff - (Intervals.day * days)) / Intervals.hour)
-        minutes = int((diff - ((Intervals.day * days) + (Intervals.hour * hours))) / Intervals.minute)
-        liste = []
-        if days == 1:
-            liste.append("1 day")
-        elif days > 1:
-            liste.append(str(days) + " days")
-        if hours == 1:
-            liste.append("1 hour")
-        elif hours > 1:
-            liste.append(str(hours) + " hours")
-        if minutes == 1:
-            liste.append("1 minute")
-        elif minutes > 1:
-            liste.append(str(minutes) + " minutes")
-        trennzeichen = ", "
-        return trennzeichen.join(liste)
 
 
 client = Client()
