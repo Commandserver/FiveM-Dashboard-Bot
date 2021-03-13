@@ -26,12 +26,12 @@ SERVER_DOMAIN = str(config.get("Status-Message", "fivem-domain"))
 FIVEM_MAX_PLAYERS = str(config.get("Settings", "max-players"))
 
 
-def request_fivem_player_count(addr):
-    """
-    Gets a server's players.json data
-    :param addr: The IPv4 of the server
-    :return: Returns Server object on success, None when the server is not reachable,
-    Otherwise False when the server is offline or on error
+def request_fivem_player_count(addr: str) -> bool or None:
+    """Gets a server's players.json data
+
+    :param addr: The IP of the server
+    :return: True on success. False when the server if offline. None of the server is unreachable.
+    :rtype: bool | None
     """
     try:
         r = requests.get("http://" + addr + "/players.json", timeout=3)
@@ -90,21 +90,21 @@ class FiveMServer:
         days = int(seconds / Intervals.day)
         hours = int((seconds - (Intervals.day * days)) / Intervals.hour)
         minutes = int((seconds - ((Intervals.day * days) + (Intervals.hour * hours))) / Intervals.minute)
-        tlist = []
+        time_list = []
         if days == 1:
-            tlist.append("1 day")
+            time_list.append("1 day")
         elif days > 1:
-            tlist.append(str(days) + " days")
+            time_list.append(str(days) + " days")
         if hours == 1:
-            tlist.append("1 hour")
+            time_list.append("1 hour")
         elif hours > 1:
-            tlist.append(str(hours) + " hours")
+            time_list.append(str(hours) + " hours")
         if minutes == 1:
-            tlist.append("1 minute")
+            time_list.append("1 minute")
         elif minutes > 1:
-            tlist.append(str(minutes) + " minutes")
+            time_list.append(str(minutes) + " minutes")
         delimiter = ", "
-        return delimiter.join(tlist)
+        return delimiter.join(time_list)
 
 
 class Client(discord.Client):
@@ -156,7 +156,6 @@ class Client(discord.Client):
         result = request_fivem_player_count(FIVEM_SERVER_IP)
         if result is True and FiveMServer.is_restarting is False:
             FiveMServer.last_online = get_timestamp()
-            FiveMServer.is_restarting = False
             embed = self.create_status_online()
 
         elif FiveMServer.is_restarting is True:
