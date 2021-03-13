@@ -185,8 +185,8 @@ class Client(discord.Client):
         embed = self.create_status_template()
         embed.title = "**Server** is currently **online!** :white_check_mark:"
         embed.colour = 0x74EE15
-        players = FiveMServer.players
-        embed.add_field(name="**Players:**", value="`" + str(players) + " / " + FIVEM_MAX_PLAYERS + "`", inline=False)
+        embed.add_field(name="**Players:**", value="`" + str(FiveMServer.players) + " / " + FIVEM_MAX_PLAYERS + "`",
+                        inline=False)
         # add uptime field
         if FiveMServer.get_uptime_seconds() > 60:
             embed.add_field(name="**Uptime:**",
@@ -227,6 +227,11 @@ class Client(discord.Client):
         embed.title = "**Server** is currently **not available!** :no_entry:"
         embed.colour = 0xFF0000
         embed.description = "```ping >3000```"
+        # add downtime field
+        if FiveMServer.get_downtime_seconds() > 60:
+            embed.add_field(name="**Downtime:**",
+                            value="`" + FiveMServer.create_time_from_seconds(FiveMServer.get_downtime_seconds()) + "`",
+                            inline=False)
         return embed
 
 
