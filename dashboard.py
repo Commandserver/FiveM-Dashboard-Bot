@@ -27,7 +27,7 @@ FIVEM_MAX_PLAYERS = str(config.get("Settings", "max-players"))
 
 
 def request_fivem_player_count(addr: str) -> bool or None:
-    """Gets a server's players.json data
+    """Sets the player count of the server on FiveMServer.players
 
     :param addr: The IP of the server
     :return: True on success. False when the server if offline. None of the server is unreachable.
@@ -44,7 +44,38 @@ def request_fivem_player_count(addr: str) -> bool or None:
 
 
 def get_timestamp() -> int:
+    """
+    Gets the current timestamp
+    """
     return int(time.time())
+
+
+def create_time_from_seconds(seconds: int) -> str:
+    """Creates a formatted time string from an amount of seconds
+
+    :param seconds: The seconds
+    :type seconds: int
+    :return: An formatted time string
+    :rtype: str
+    """
+    days = int(seconds / Intervals.day)
+    hours = int((seconds - (Intervals.day * days)) / Intervals.hour)
+    minutes = int((seconds - ((Intervals.day * days) + (Intervals.hour * hours))) / Intervals.minute)
+    time_list = []
+    if days == 1:
+        time_list.append("1 day")
+    elif days > 1:
+        time_list.append(str(days) + " days")
+    if hours == 1:
+        time_list.append("1 hour")
+    elif hours > 1:
+        time_list.append(str(hours) + " hours")
+    if minutes == 1:
+        time_list.append("1 minute")
+    elif minutes > 1:
+        time_list.append(str(minutes) + " minutes")
+    delimiter = ", "
+    return delimiter.join(time_list)
 
 
 class Intervals:
@@ -81,30 +112,6 @@ class FiveMServer:
             return get_timestamp() - FiveMServer.last_offline
         else:
             return 0
-
-    @staticmethod
-    def create_time_from_seconds(seconds: int) -> str:
-        """
-        Creates a formatted time string from the seconds
-        """
-        days = int(seconds / Intervals.day)
-        hours = int((seconds - (Intervals.day * days)) / Intervals.hour)
-        minutes = int((seconds - ((Intervals.day * days) + (Intervals.hour * hours))) / Intervals.minute)
-        time_list = []
-        if days == 1:
-            time_list.append("1 day")
-        elif days > 1:
-            time_list.append(str(days) + " days")
-        if hours == 1:
-            time_list.append("1 hour")
-        elif hours > 1:
-            time_list.append(str(hours) + " hours")
-        if minutes == 1:
-            time_list.append("1 minute")
-        elif minutes > 1:
-            time_list.append(str(minutes) + " minutes")
-        delimiter = ", "
-        return delimiter.join(time_list)
 
 
 class Client(discord.Client):
@@ -149,7 +156,8 @@ class Client(discord.Client):
             await self.clear_status_channel(10)
             FiveMServer.status_message = await FiveMServer.status_channel.send(embed=embed)
 
-    async def clear_status_channel(self, number_of_messages):
+    @staticmethod
+    async def clear_status_channel(number_of_messages):
         await FiveMServer.status_channel.purge(limit=number_of_messages)
 
     async def update_status(self):
@@ -174,7 +182,8 @@ class Client(discord.Client):
         del result
         del embed
 
-    def create_status_template(self) -> discord.Embed:
+    @staticmethod
+    def create_status_template() -> discord.Embed:
         embed = discord.Embed()
         embed.add_field(name="**FiveM:**", value="`" + SERVER_DOMAIN + "`", inline=False)
         embed.set_footer(text="Last updated: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -189,7 +198,7 @@ class Client(discord.Client):
         # add uptime field
         if FiveMServer.get_uptime_seconds() > 60:
             embed.add_field(name="**Uptime:**",
-                            value="`" + FiveMServer.create_time_from_seconds(FiveMServer.get_uptime_seconds()) + "`",
+                            value="`" + create_time_from_seconds(FiveMServer.get_uptime_seconds()) + "`",
                             inline=False)
         # add restart-warn-message
         if FiveMServer.next_restart > get_timestamp():
@@ -217,7 +226,7 @@ class Client(discord.Client):
         # add downtime field
         if FiveMServer.get_downtime_seconds() > 60:
             embed.add_field(name="**Downtime:**",
-                            value="`" + FiveMServer.create_time_from_seconds(FiveMServer.get_downtime_seconds()) + "`",
+                            value="`" + create_time_from_seconds(FiveMServer.get_downtime_seconds()) + "`",
                             inline=False)
         return embed
 
@@ -229,7 +238,7 @@ class Client(discord.Client):
         # add downtime field
         if FiveMServer.get_downtime_seconds() > 60:
             embed.add_field(name="**Downtime:**",
-                            value="`" + FiveMServer.create_time_from_seconds(FiveMServer.get_downtime_seconds()) + "`",
+                            value="`" + create_time_from_seconds(FiveMServer.get_downtime_seconds()) + "`",
                             inline=False)
         return embed
 
