@@ -26,10 +26,10 @@
 
 <hr>
 
-##Dependencies:
+## Dependencies:
 
-- ![requests](https://pypi.org/project/requests/)
-- ![discord](https://pypi.org/project/discord.py/) (without voice)
+- [requests](https://pypi.org/project/requests/)
+- [discord](https://pypi.org/project/discord.py/) (without voice)
   
     Make sure you have installed it!
 
