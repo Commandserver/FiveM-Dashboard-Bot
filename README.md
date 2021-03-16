@@ -24,6 +24,17 @@
 
 ![](https://camo.githubusercontent.com/2d6b2194dd4e1d3563e0e7de9a0b8c81bd271da797b716d5fa8952c72ea4b58c/68747470733a2f2f692e696d6775722e636f6d2f525268697950632e706e67)
 
+<hr>
+
+##Dependencies:
+
+- ![requests](https://pypi.org/project/requests/)
+- ![discord](https://pypi.org/project/discord.py/) (without voice)
+  
+    Make sure you have installed it!
+
+<hr>
+
 It uses the players.json of the FiveM server to count the players.
 
 This Bot was made for [Flixrp.net](https://www.flixrp.net/)
