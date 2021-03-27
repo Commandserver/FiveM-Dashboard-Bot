@@ -127,7 +127,7 @@ class Client(discord.Client):
         await self.edit_status_message(discord.Embed(title="Restarted Dashboard"))
 
         while True:
-            self.loop.create_task(self.update_status())
+            self.update_status()
             await asyncio.sleep(STATUS_UPDATE_INTERVAL)
 
     async def on_message(self, message):
