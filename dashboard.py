@@ -131,9 +131,7 @@ class Client(discord.Client):
             await asyncio.sleep(STATUS_UPDATE_INTERVAL)
 
     async def on_message(self, message):
-        if not message.author.bot:
-            return
-        elif message.author == client.user:
+        if not message.author.bot or message.author.system:
             return
         elif message.author.id == FIVEM_BOT_ID:
             lower_message = str(message.content).lower()
