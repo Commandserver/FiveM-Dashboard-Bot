@@ -6,8 +6,8 @@
     <h4>Monitor your FiveM server on your Discord server with this bot.</h4>
     <a href="https://discord.flixrp.net"><img src="https://img.shields.io/discord/665677622604201993?color=7289da&logo=discord&logoColor=white" alt="Discord server" /></a>
     <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/Commandserver/FiveM-Dashboard-Bot">
-    <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Commandserver/FiveM-Dashboard-Bot/total">
     <img alt="GitHub" src="https://img.shields.io/github/license/Commandserver/FiveM-Dashboard-Bot">
+    <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Commandserver/FiveM-Dashboard-Bot/total">
   </p>
 </div>
 
