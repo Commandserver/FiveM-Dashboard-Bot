@@ -16,7 +16,7 @@
 Show the status of Your FiveM server and how many players are currently playing on it, on your Discord Server.
 It uses the players.json of the FiveM server to count the online-players.
 
-Download only the [releases](https://gitlab.com/Commandserver/fivem-dashboard-bot/-/releases), don't download the main branch.
+Download only the [releases](https://github.com/Commandserver/FiveM-Dashboard-Bot/releases), don't download the main branch.
 
 ## Preview:
 
@@ -29,7 +29,7 @@ Download only the [releases](https://gitlab.com/Commandserver/fivem-dashboard-bo
 
 ➥ You must be a server administrator to use this. Otherwise, the bot will not react.
 
-`!fivem` show the current fivem status from [downdetector](https://allestörungen.de/stoerung/fivem/) and [cfx.re](https://status.cfx.re/)
+`!fivem` show the current fivem status from [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/) and [status.cfx.re](https://status.cfx.re/)
 
 ➥ Has a cooldown of 6 seconds
 
@@ -91,7 +91,3 @@ The Discord Bot needs the following permissions in the status channel where he s
 - Embed Links
 - Manage Messages
 - Read Message History
-
-### Known issues
-
-When starting the Bot with systemd, the config cannot be read, and the log file has not been created. In this case you have to set the absolute path to these files in the `bot.py`.

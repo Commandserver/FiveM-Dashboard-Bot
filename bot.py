@@ -3,6 +3,7 @@ import asyncio
 import configparser
 import logging
 import math
+import os
 import random
 import sys
 import traceback
@@ -14,14 +15,14 @@ import discord
 import fivem
 
 logging.basicConfig(
-    filename="latest.log",
+    filename=os.path.join(os.path.dirname(__file__), 'latest.log'),
     filemode="w",
     level=logging.INFO,
     format="%(asctime)s:%(levelname)s:%(message)s"
 )
 logging.info("Started with python version " + sys.version)
 config = configparser.ConfigParser()
-config.read("config.ini")
+config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
 
 STATUS_UPDATE_INTERVAL = int(config.get("Settings", "status-update-interval"))
 STATUS_CHANNEL_ID = int(config.get("Settings", "status-channel-id"))
