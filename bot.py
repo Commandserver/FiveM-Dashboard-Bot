@@ -33,6 +33,7 @@ RESTART_WARN_DELAY = int(config.get("Restart-Detection", "restart-warn-delay"))
 FIVEM_SERVER_IP = str(config.get("Settings", "fivem-server-ip"))
 SERVER_DOMAIN = str(config.get("Status-Message", "fivem-domain"))
 FIVEM_MAX_PLAYERS = str(config.get("Settings", "max-players"))
+FIVEM_SERVER_STATUS_INTERVAL = int(config.get("Settings", "fivem-server-status-update-interval"))
 
 fiveMServer = fivem.Server(ip=FIVEM_SERVER_IP)
 
@@ -307,7 +308,7 @@ class Client(discord.Client):
             except Exception as e:
                 logging.error("failed to fetch down detector status", exc_info=e)
                 self.down_detector_status = ":grey_question: Keine Daten"
-            await asyncio.sleep(28 + random.randint(0, 5))
+            await asyncio.sleep(FIVEM_SERVER_STATUS_INTERVAL + random.randint(0, 5))
 
     @staticmethod
     def create_status_template() -> discord.Embed:
