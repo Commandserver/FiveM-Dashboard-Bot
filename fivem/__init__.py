@@ -7,7 +7,7 @@ from .Server import Server
 from .State import State
 
 
-def get_serverdata(ip: str):
+def get_serverdata(ip: str) -> Data:
     """Retrieve information about a fivem server.
     It uses the info.json and the players.json from the Fivem server.
 
@@ -35,7 +35,7 @@ def get_serverdata(ip: str):
     return server
 
 
-def down_detector():
+def down_detector() -> str:
     """Check the FiveM Server status from `AlleStörungen.de`.
     It requests the website and will parse the html code to identify the status message.
 
@@ -55,11 +55,12 @@ def down_detector():
     return tc
 
 
-def cfx_status():
+def cfx_status() -> str:
     """Request the FiveM server status from the official cfx.re status api
     https://status.cfx.re/api/v2/status.json
 
     :return: The official cfx.re status message of fivem. Truncated to 500 characters
+    :rtype: str
 
     :raises Exception: When the request or parsing the data fails.
     """

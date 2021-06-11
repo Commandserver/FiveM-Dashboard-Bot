@@ -24,7 +24,7 @@ class Server:
         Therefore is this indicator to check if the server was offline twice, then reset the uptime."""
         self._state: Enum = State.OFFLINE
         """The last server state of the FiveM server"""
-        self._ip = kwargs.get("ip")
+        self._ip: str = kwargs.get("ip")
         """The IP (with port) of the server to handle with"""
 
     def request_state(self):
