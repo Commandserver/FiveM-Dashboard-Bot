@@ -37,7 +37,8 @@ class Server:
             self.set_state_not_reachable()
         except:
             self.set_state_offline()
-        self.set_state_online()
+        else:
+            self.set_state_online()
 
     def get_downtime_seconds(self) -> int:
         """Get the downtime of the FiveM server in seconds"""

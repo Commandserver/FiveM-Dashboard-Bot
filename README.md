@@ -48,7 +48,7 @@ Download only the [releases](https://github.com/Commandserver/FiveM-Dashboard-Bo
 ## Dependencies:
 
 - obviously Python3
-- [requests](https://pypi.org/project/requests/)
+- [requests](https://pypi.org/project/requests/) version <b>2.22.0</b>
 - [discord](https://pypi.org/project/discord.py/) (without voice)
 - [pyquery](https://pypi.org/project/pyquery/)
 

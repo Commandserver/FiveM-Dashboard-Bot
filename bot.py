@@ -11,18 +11,19 @@ from datetime import datetime
 from time import time
 
 import discord
+import requests
 
 import fivem
 
 logging.basicConfig(
-    filename=os.path.join(os.path.dirname(__file__), 'latest.log'),
+    filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'latest.log'),
     filemode="w",
     level=logging.INFO,
     format="%(asctime)s:%(levelname)s:%(message)s"
 )
 logging.info("Started with python version " + sys.version)
 config = configparser.ConfigParser()
-config.read(os.path.join(os.path.dirname(__file__), 'config.ini'))
+config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
 
 STATUS_UPDATE_INTERVAL = int(config.get("Settings", "status-update-interval"))
 STATUS_CHANNEL_ID = int(config.get("Settings", "status-channel-id"))
@@ -173,6 +174,7 @@ class Client(discord.Client):
                 await message.channel.send("Onlinezeit wird wieder angezeigt :sound:")
         elif lower_message.startswith("!fivem") and CommandDelay.cooldown("fivem", 6):
             async with message.channel.typing():
+                # self.update_fivem_status()
                 embed = discord.Embed()
                 embed.set_author(
                     name="FiveM Status",
@@ -181,19 +183,18 @@ class Client(discord.Client):
                 )
                 embed.set_footer(text="FlixRP", icon_url="https://verwaltung.flixrp.net/favicon-32x32.png")
                 embed.timestamp = datetime.utcnow()
-                # noinspection PyBroadException
-                try:
-                    cfx = fivem.cfx_status()
-                except:
-                    cfx = ":question: Keine Daten"
-                embed.add_field(name="FiveM Status von status.cfx.re", value=cfx, inline=True)
-                # noinspection PyBroadException
-                try:
-                    dd = fivem.down_detector()
-                except:
-                    dd = ":question: Keine Daten"
-                embed.add_field(name="FiveM Status von AlleStörungen.de", value=dd, inline=True)
-
+                embed.add_field(
+                    name="\u200b",
+                    value="**FiveM Status von [status.cfx.re](https://status.cfx.re/)**\n" +
+                          self.add_dot_to_fivem_status(self.cfx_status),
+                    inline=True,
+                )
+                embed.add_field(
+                    name="\u200b",
+                    value="**FiveM Status von [Allestörungen.de](https://allestörungen.de/stoerung/fivem/)**\n" +
+                          self.add_dot_to_fivem_status(self.down_detector_status),
+                    inline=True,
+                )
                 await message.channel.send(embed=embed)
         elif lower_message.startswith("!players") and CommandDelay.cooldown("players", 5) and \
                 message.author.guild_permissions.administrator:
@@ -280,8 +281,10 @@ class Client(discord.Client):
                     logging.error("failed to send the status message.", exc_info=e)
 
     async def update_status_loop(self):
+        """Loop for updating the server-status"""
         logging.info("Starting status-update loop")
         while True:
+            await asyncio.sleep(STATUS_UPDATE_INTERVAL)
             fiveMServer.request_state()
             if fiveMServer.is_online():
                 embed = self.create_status_online()
@@ -293,22 +296,30 @@ class Client(discord.Client):
                 embed = self.create_status_offline()
 
             await self.edit_status_message(embed)
-            await asyncio.sleep(STATUS_UPDATE_INTERVAL)
 
     async def update_fivem_status_loop(self):
+        """Loop for updating the official fivem-status"""
         logging.info("Starting fivem status-update loop")
         while True:
-            try:
-                self.cfx_status = fivem.cfx_status()
-            except Exception as e:
-                logging.error("failed to fetch cfx status from api", exc_info=e)
-                self.cfx_status = ":grey_question: Keine Daten"
-            try:
-                self.down_detector_status = fivem.down_detector()
-            except Exception as e:
-                logging.error("failed to fetch down detector status", exc_info=e)
-                self.down_detector_status = ":grey_question: Keine Daten"
+            self.update_fivem_status()
             await asyncio.sleep(FIVEM_SERVER_STATUS_INTERVAL + random.randint(0, 5))
+
+    def update_fivem_status(self):
+        """Update the class attributes down_detector_status and cfx_status with helpers from the fivem package"""
+        try:
+            self.cfx_status = fivem.cfx_status()
+        except requests.exceptions.ConnectionError:
+            self.cfx_status = ":grey_question: Keine Verbindung"
+        except Exception as e:
+            logging.warning("failed to fetch cfx status from api", exc_info=e)
+            self.cfx_status = ":grey_question: Keine Daten"
+        try:
+            self.down_detector_status = fivem.down_detector()
+        except requests.exceptions.ConnectionError:
+            self.down_detector_status = ":grey_question: Keine Verbindung"
+        except Exception as e:
+            logging.warning("failed to fetch down detector status", exc_info=e)
+            self.down_detector_status = ":grey_question: Keine Daten"
 
     @staticmethod
     def create_status_template() -> discord.Embed:
@@ -331,14 +342,15 @@ class Client(discord.Client):
         if self.show_cfx_status:
             embed.add_field(
                 name="\u200b",
-                value="**FiveM Status von [status.cfx.re](https://status.cfx.re/)**\n" + self.cfx_status + "\n\u200b",
+                value=f"**FiveM Status von [status.cfx.re](https://status.cfx.re/)**\n"
+                      f"{self.add_dot_to_fivem_status(self.cfx_status)}\n\u200b",
                 inline=True,
             )
         if self.show_down_detector_status:
             embed.add_field(
                 name="\u200b",
-                value="**FiveM Status von [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/)**\n" +
-                      self.down_detector_status + "\n\u200b",
+                value=f"**FiveM Status von [Allestörungen.de](https://allestörungen.de/stoerung/fivem/)**\n"
+                      f"{self.add_dot_to_fivem_status(self.down_detector_status)}\n\u200b",
                 inline=True,
             )
 
@@ -406,6 +418,30 @@ class Client(discord.Client):
             )
         self.add_fivem_status_to_status_message(embed)
         return embed
+
+    @staticmethod
+    def add_dot_to_fivem_status(status: str) -> str:
+        """Adds a discord formatted colored dot depending on the status in front of the string"""
+        if not status.startswith(":grey_question:"):
+            lower_status = status.lower()
+            if lower_status == "all systems operational":
+                return ":green_circle: " + status
+            elif lower_status == "partial system outage":
+                return ":red_circle: " + status
+            elif lower_status == "minor service outage":
+                return ":orange_circle: " + status
+            elif lower_status == "partially degraded service":
+                return ":orange_circle: " + status
+            elif lower_status == "nutzerberichte deuten auf mögliche probleme bei fivem hin":
+                return ":orange_circle: " + status
+            elif lower_status == "nutzerberichte zeigen keine aktuellen probleme bei fivem":
+                return ":green_circle: " + status
+            elif lower_status == "nutzerberichte deuten auf probleme bei fivem hin":
+                return ":red_circle: " + status
+            else:
+                return ":black_circle: " + status
+        else:
+            return status
 
 
 if __name__ == "__main__":

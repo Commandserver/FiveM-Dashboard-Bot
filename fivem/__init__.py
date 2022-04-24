@@ -1,6 +1,7 @@
 import requests
 from pyquery import PyQuery
 
+import useragent
 from .Data import Data
 from .Player import Player
 from .Server import Server
@@ -45,12 +46,14 @@ def down_detector() -> str:
     :raises Exception: When the request or parsing the data fails.
     """
     url = 'https://allestörungen.de/stoerung/fivem/'
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) '
-                             'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+    headers = {'User-Agent': useragent.rand()}
     response = requests.get(url, headers=headers, timeout=6)
     pq = PyQuery(response.text)
     tag = pq("body div#company div.h2.entry-title")
-    status = tag.html().strip()
+    status = tag.html()
+    if not status:
+        raise Exception("parsing the status failed")
+    status = status.strip()
     tc = (status[:500] + '..') if len(status) > 500 else status
     return tc
 

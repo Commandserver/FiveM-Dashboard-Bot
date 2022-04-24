@@ -9,7 +9,7 @@ class Data:
     def __init__(self):
         self.info = self.Info()
         """Info object about the server"""
-        self.players = List[Player]
+        self.players: List[Player] = []
         """A List of Player"""
 
     class Info:
@@ -17,5 +17,8 @@ class Data:
 
         def __init__(self):
             self.name: str = ""
+            """The servername"""
             self.max_players: int = 0
+            """The maximum player count"""
             self.description: str = ""
+            """The server description"""
