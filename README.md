@@ -4,7 +4,6 @@
       FiveM-Dashboard-Bot
     </h1>
     <h4>Monitor your FiveM server on your Discord server with this bot.</h4>
-    <a href="https://discord.flixrp.net"><img src="https://img.shields.io/discord/665677622604201993?color=7289da&logo=discord&logoColor=white" alt="Discord server" /></a>
     <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/Commandserver/FiveM-Dashboard-Bot">
     <img alt="GitHub" src="https://img.shields.io/github/license/Commandserver/FiveM-Dashboard-Bot">
     <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Commandserver/FiveM-Dashboard-Bot/total">
@@ -16,12 +15,11 @@
 Show the status of Your FiveM server and how many players are currently playing on it, on your Discord Server.
 It uses the players.json of the FiveM server to count the online-players.
 
-Download only the [releases](https://github.com/Commandserver/FiveM-Dashboard-Bot/releases), don't download the main branch.
+[See the releases](https://github.com/Commandserver/FiveM-Dashboard-Bot/releases)
 
 ## Preview:
 
-![](https://gitlab.com/Commandserver/fivem-dashboard-bot/uploads/8d6bd5e4adaae7b84d1a99034b155d51/image.png)
-![](https://camo.githubusercontent.com/2d6b2194dd4e1d3563e0e7de9a0b8c81bd271da797b716d5fa8952c72ea4b58c/68747470733a2f2f692e696d6775722e636f6d2f525268697950632e706e67)
+![](https://user-images.githubusercontent.com/44061123/165137815-6acaf05d-99ce-4701-a6a4-ed6a3ed1dc71.png)
 
 ### Bot Commands
 
@@ -47,9 +45,9 @@ Download only the [releases](https://github.com/Commandserver/FiveM-Dashboard-Bo
 
 ## Dependencies:
 
-- obviously Python3
-- [requests](https://pypi.org/project/requests/) version <b>2.22.0</b>
-- [discord](https://pypi.org/project/discord.py/) (without voice)
+- Python3.9
+- [requests](https://pypi.org/project/requests/) (v2.22.0)
+- [discord](https://pypi.org/project/discord.py/)
 - [pyquery](https://pypi.org/project/pyquery/)
 
 Make sure you have installed it!
@@ -58,7 +56,7 @@ This bot needs the build-in status bot from your fivem server for the restart de
 
 ## Running
 
-Its recommended running this Bot on an external server with systemd.
+Its recommended running this Bot on an external server with systemctl.
 The systemd (.service) file could look like this:
 
 ```ini
@@ -66,7 +64,7 @@ The systemd (.service) file could look like this:
 Description=Discord FiveM Dashboard Bot
 
 [Service]
-ExecStart=/home/foobar/bot.py
+ExecStart=/path_to_the_project/bot.py
 Type=simple
 Restart=always
 
@@ -91,3 +89,7 @@ The Discord Bot needs the following permissions in the status channel where he s
 - Embed Links
 - Manage Messages
 - Read Message History
+
+## Show your support
+
+Be sure to leave a ⭐️ if you like the project and also be sure to contribute, if you're interested! Want to help? Drop me a line or send a PR.
