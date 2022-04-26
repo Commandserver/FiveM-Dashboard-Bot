@@ -391,7 +391,6 @@ class Client(discord.Client):
 
 if __name__ == "__main__":
     client = Client(
-        max_messages=100,
         allowed_mentions=discord.AllowedMentions.none(),
         guild_subscriptions=False,
         activity=discord.Activity(
