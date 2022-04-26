@@ -34,7 +34,6 @@ RESTART_WARN_DELAY = int(config.get("Restart-Detection", "restart-warn-delay"))
 FIVEM_SERVER_IP = str(config.get("Settings", "fivem-server-ip"))
 SERVER_DOMAIN = str(config.get("Status-Message", "fivem-domain"))
 FIVEM_MAX_PLAYERS = str(config.get("Settings", "max-players"))
-FIVEM_SERVER_STATUS_INTERVAL = int(config.get("Settings", "fivem-server-status-update-interval"))
 
 fiveMServer = fivem.Server(ip=FIVEM_SERVER_IP)
 
@@ -100,30 +99,6 @@ class Intervals:
     """How many seconds one minute has"""
 
 
-class CommandDelay:
-    """Static class. Helper class for discord command stuff"""
-    _keys: dict = {}
-    """The storage for the keywords and the timestamps"""
-
-    @staticmethod
-    def cooldown(command: str, seconds: int = 5) -> bool:
-        """Check if the command was not spammed too many times
-
-        :param command: A keyword of the command
-        :param seconds: How many seconds to cooldown. Default is 5 seconds
-        :return: True when the last execution was more than X seconds ago. Otherwise False
-        """
-        if command in CommandDelay._keys.keys():
-            if CommandDelay._keys.get(command) + seconds < int(time()):
-                CommandDelay._keys[command] = int(time())
-                return True
-            else:
-                return False
-        else:
-            CommandDelay._keys[command] = int(time())
-            return True
-
-
 class Client(discord.Client):
     skipped_status_update: bool = False
 
@@ -172,9 +147,8 @@ class Client(discord.Client):
             else:
                 self.show_uptime = True
                 await message.channel.send("Onlinezeit wird wieder angezeigt :sound:")
-        elif lower_message.startswith("!fivem") and CommandDelay.cooldown("fivem", 6):
+        elif lower_message.startswith("!fivem"):
             async with message.channel.typing():
-                # self.update_fivem_status()
                 embed = discord.Embed()
                 embed.set_author(
                     name="FiveM Status",
@@ -195,36 +169,6 @@ class Client(discord.Client):
                           self.add_dot_to_fivem_status(self.down_detector_status),
                     inline=True,
                 )
-                await message.channel.send(embed=embed)
-        elif lower_message.startswith("!players") and CommandDelay.cooldown("players", 5) and \
-                message.author.guild_permissions.administrator:
-            async with message.channel.typing():
-                embed = discord.Embed()
-                embed.set_author(
-                    name="FlixRP Online Spieler",
-                    icon_url="https://verwaltung.flixrp.net/favicon-32x32.png",
-                    url="https://www.flixrp.net",
-                )
-                embed.timestamp = datetime.utcnow()
-                try:
-                    fivem_data = fivem.get_serverdata(FIVEM_SERVER_IP)
-                    fields = round(int(len(fivem_data.players) / 12) / 3 + 0.5) * 3
-                    lst = chunk_based_on_number(fivem_data.players, fields)
-                    for e in lst:
-                        val = ""
-                        for player in e:
-                            if type(player) is fivem.Player:
-                                val += "**" + player.name + "** ID: " + str(player.id) + "\n"
-                        embed.add_field(
-                            name="\u200b",
-                            value=val,
-                            inline=True,
-                        )
-                    embed.description = "Spieler: " + str(len(fivem_data.players)) + \
-                                        " / " + str(fivem_data.info.max_players)
-                except Exception as e:
-                    logging.error("failed to fetch server information", exc_info=e)
-                    embed.description = "Daten konnten nicht abgerufen werden"
                 await message.channel.send(embed=embed)
         elif lower_message.startswith("!togglecfxstatus") and message.author.guild_permissions.administrator:
             if self.show_cfx_status:
@@ -302,7 +246,8 @@ class Client(discord.Client):
         logging.info("Starting fivem status-update loop")
         while True:
             self.update_fivem_status()
-            await asyncio.sleep(FIVEM_SERVER_STATUS_INTERVAL + random.randint(0, 5))
+            # repeat around every half minute
+            await asyncio.sleep(33 + random.randint(0, 5))
 
     def update_fivem_status(self):
         """Update the class attributes down_detector_status and cfx_status with helpers from the fivem package"""

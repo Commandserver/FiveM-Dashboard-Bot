@@ -2,38 +2,8 @@ import requests
 from pyquery import PyQuery
 
 import useragent
-from .Data import Data
-from .Player import Player
 from .Server import Server
 from .State import State
-
-
-def get_serverdata(ip: str) -> Data:
-    """Retrieve information about a fivem server.
-    It uses the info.json and the players.json from the Fivem server.
-
-    :return: The fivem data.
-    :rtype: Data
-
-    :raises Exception: When the request or parsing the data fails.
-    """
-    server = Data()
-
-    r = requests.get("http://{0}/info.json".format(ip), timeout=4)
-    data = r.json()
-    server.info.description = data["vars"]["sv_projectDesc"]
-    server.info.max_players = int(data["vars"]["sv_maxClients"])
-    server.info.name = data["vars"]["sv_projectName"]
-
-    r = requests.get("http://{0}/players.json".format(ip), timeout=4)
-    data = r.json()
-    for p in data:
-        player = Player()
-        player.name = p["name"]
-        player.ping = int(p["ping"])
-        player.id = int(p["id"])
-        server.players.append(player)
-    return server
 
 
 def down_detector() -> str:

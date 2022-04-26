@@ -24,17 +24,11 @@ The live [official fivem status](https://status.cfx.re/) and [AlleStörungen.de]
 
 ## Commands
 
+`!fivem` show the current fivem status from [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/) and [status.cfx.re](https://status.cfx.re/)
+
 `!toggleuptimevisibility` to toggle the visibility of the uptime in the status message 
 
 ➥ You must be a server administrator to use this. Otherwise, the bot will not react.
-
-`!fivem` show the current fivem status from [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/) and [status.cfx.re](https://status.cfx.re/)
-
-➥ Has a cooldown of 6 seconds
-
-`!players` to request the online players on the FiveM server
-
-➥ You must be a server administrator to use this. Otherwise, the bot will not react. Has a cooldown of 5 seconds
 
 `!toggledowndetectorstatus` to toggle the visibility of the FiveM Status from [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/) in the status message 
 
