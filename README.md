@@ -10,15 +10,15 @@
   </p>
 </div>
 
-## About
+## Features
 
-
-Shows the live-status of your FiveM Server and how many players are currently playing on it.
-The live [official fivem status](https://status.cfx.re/) and [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/) will also be displayed.
-
-[See the releases](https://github.com/Commandserver/FiveM-Dashboard-Bot/releases)
+- shows the live-status of your FiveM Server and how many players are currently playing on it
+- live-status of the [official fivem status](https://status.cfx.re/) and [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/)
+- A command to get the current fivem status
 
 ## Preview:
+
+This is how the live-dashboard message can look like. It gets updated every 8 seconds.
 
 ![](https://user-images.githubusercontent.com/44061123/165137815-6acaf05d-99ce-4701-a6a4-ed6a3ed1dc71.png)
 
@@ -49,7 +49,7 @@ Install the dependencies by just doing `pip3 install -r requirements.txt`
 
 ## Running
 
-If you just want to have the `/fivem` command on your server, you can also just [invite the bot to your server](https://discord.com/api/oauth2/authorize?client_id=871415662109659156&permissions=280576&scope=bot%20applications.commands) rather than running your own instance of it.
+If you just want to have a `/fivem` slash command the get the fivem status on your server, you can also just [invite my public discord bot](https://discord.com/api/oauth2/authorize?client_id=871415662109659156&permissions=280576&scope=bot%20applications.commands) to your server rather than running your own instance of it.
 
 I'd recommend running the Bot with systemctl to keep the bot always online.
 The systemd (.service) file could look like this:
