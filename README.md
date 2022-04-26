@@ -24,6 +24,8 @@ The live [official fivem status](https://status.cfx.re/) and [AlleStörungen.de]
 
 ## Commands
 
+Message based commands:
+
 `!fivem` show the current fivem status from [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/) and [status.cfx.re](https://status.cfx.re/)
 
 `!toggleuptimevisibility` to toggle the visibility of the uptime in the status message 
@@ -81,8 +83,6 @@ The Discord Bot needs the following permissions:
 - Embed Links
 - Manage Messages
 - Read Message History
-
-Also enable the message content intent!
 
 ## Show your support
 
