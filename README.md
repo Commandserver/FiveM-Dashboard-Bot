@@ -45,7 +45,7 @@ It uses the players.json of the FiveM server to count the online-players.
 
 ## Dependencies:
 
-- Python3.9
+- Python3.8 or higher
 - [requests](https://pypi.org/project/requests/) (v2.22.0)
 - [discord](https://pypi.org/project/discord.py/)
 - [pyquery](https://pypi.org/project/pyquery/)
