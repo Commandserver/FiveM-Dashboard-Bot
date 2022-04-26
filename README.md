@@ -3,7 +3,7 @@
     <h1>
       FiveM-Dashboard-Bot
     </h1>
-    <h4>Monitor your FiveM server on your Discord server with this bot.</h4>
+    <h4>A Discord bot which displays the live-status of your FiveM Server.</h4>
     <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/Commandserver/FiveM-Dashboard-Bot">
     <img alt="GitHub" src="https://img.shields.io/github/license/Commandserver/FiveM-Dashboard-Bot">
     <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Commandserver/FiveM-Dashboard-Bot/total">
@@ -12,8 +12,9 @@
 
 ## About
 
-Show the status of Your FiveM server and how many players are currently playing on it, on your Discord Server.
-It uses the players.json of the FiveM server to count the online-players.
+
+Shows the live-status of your FiveM Server and how many players are currently playing on it.
+The live [official fivem status](https://status.cfx.re/) and [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/) will also be displayed.
 
 [See the releases](https://github.com/Commandserver/FiveM-Dashboard-Bot/releases)
 
@@ -21,7 +22,7 @@ It uses the players.json of the FiveM server to count the online-players.
 
 ![](https://user-images.githubusercontent.com/44061123/165137815-6acaf05d-99ce-4701-a6a4-ed6a3ed1dc71.png)
 
-### Bot Commands
+## Commands
 
 `!toggleuptimevisibility` to toggle the visibility of the uptime in the status message 
 
@@ -45,23 +46,20 @@ It uses the players.json of the FiveM server to count the online-players.
 
 ## Dependencies:
 
-- Python3.9
-- [requests](https://pypi.org/project/requests/) (v2.22.0)
-- [discord](https://pypi.org/project/discord.py/)
-- [pyquery](https://pypi.org/project/pyquery/)
+- Python3.8 or higher
+- For required python packages see the `requirements.txt`
 
 Make sure you have installed it!
 
-This bot needs the build-in status bot from your fivem server for the restart detection.
-
 ## Running
 
-Its recommended running this Bot on an external server with systemctl.
+I'd recommend running the Bot with systemctl to keep the bot always online.
 The systemd (.service) file could look like this:
 
 ```ini
 [Unit]
 Description=Discord FiveM Dashboard Bot
+After=network.target
 
 [Service]
 ExecStart=/path_to_the_project/bot.py
@@ -78,7 +76,7 @@ When the bot is running, it will create a log file named `latest.log`.
 
 ### Configuration
 
-The Bot can be configured in the <i>config.ini</i>.
+The Bot can be configured in the `config.ini`.
 
 ### Needed Discord permissions
 
