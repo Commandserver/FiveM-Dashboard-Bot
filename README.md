@@ -15,6 +15,7 @@
 - shows the live-status of your FiveM Server and how many players are currently playing on it
 - live-status of the [official fivem status](https://status.cfx.re/) and [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/)
 - A command to get the current fivem status
+- Restart detection of your fivem server with the help of your built-in TxAdmin Discord Bot
 
 ## Preview:
 
