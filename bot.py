@@ -2,7 +2,6 @@
 import asyncio
 import configparser
 import logging
-import math
 import os
 import random
 import sys
@@ -43,20 +42,6 @@ def get_timestamp() -> int:
     Gets the current timestamp
     """
     return int(time())
-
-
-def chunk_based_on_number(lst: list, chunk_numbers: int):
-    """Split a list not based on the number of chunks you want to be created.
-    Some elements may be None. So make sure to check the type of each element
-    """
-    n = math.ceil(len(lst) / chunk_numbers)
-
-    for x in range(0, len(lst), n):
-        each_chunk = lst[x: n + x]
-
-        if len(each_chunk) < n:
-            each_chunk = each_chunk + [None for _ in range(n - len(each_chunk))]
-        yield each_chunk
 
 
 def create_time_from_seconds(seconds: int) -> str:
