@@ -2,6 +2,9 @@
 #
 # Kills the bot in the screen
 
+# go into the project directory
+cd $(dirname $0)
+
 name="fivem-dashboard"
 
 if screen -list | grep $name; then
