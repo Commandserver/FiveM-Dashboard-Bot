@@ -43,7 +43,7 @@ The live [official fivem status](https://status.cfx.re/) and [AlleStörungen.de]
 - Python3.8 or higher
 - For required python packages see the `requirements.txt`
 
-Make sure you have installed it!
+Install the dependencies by just doing `pip3 install -r requirements.txt`
 
 ## Running
 
@@ -70,17 +70,19 @@ When the bot is running, it will create a log file named `latest.log`.
 
 ### Configuration
 
-The Bot can be configured in the `config.ini`.
+Modify the config template `config.ini`.
 
-### Needed Discord permissions
+### Required Discord permissions
 
-The Discord Bot needs the following permissions in the status channel where he sends the status message in:
+The Discord Bot needs the following permissions:
 
-- View Channel
+- View Channel (Read messages)
 - Send Messages
 - Embed Links
 - Manage Messages
 - Read Message History
+
+Also enable the message content intent!
 
 ## Show your support
 
