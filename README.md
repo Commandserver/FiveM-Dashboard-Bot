@@ -49,6 +49,8 @@ Install the dependencies by just doing `pip3 install -r requirements.txt`
 
 ## Running
 
+If you just want to have the `/fivem` command on your server, you can also just [invite the bot to your server](https://discord.com/api/oauth2/authorize?client_id=871415662109659156&permissions=280576&scope=bot%20applications.commands) rather than running your own instance of it.
+
 I'd recommend running the Bot with systemctl to keep the bot always online.
 The systemd (.service) file could look like this:
 
