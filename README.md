@@ -46,11 +46,27 @@ Message based commands:
 - Python3.8 or higher
 - For required python packages see the `requirements.txt`
 
-Install the dependencies by just doing `pip3 install -r requirements.txt`
-
 ## Running
 
 If you just want to have a `/fivem` slash command the get the fivem status on your server, you can also just [invite my public discord bot](https://discord.com/api/oauth2/authorize?client_id=871415662109659156&permissions=280576&scope=bot%20applications.commands) to your server rather than running your own instance of it.
+
+1. **Install dependencies**
+
+Just do `pip3 install -r requirements.txt`.
+
+2. **Config**
+
+Modify the config template `config.ini`.
+
+3. **Run the bot**
+
+Just do `python3 bot.py`.
+
+Optional you can run the Bot in a [screen](https://linuxize.com/post/how-to-use-linux-screen/) session with the `start.sh` and `stop.sh`.
+
+When the bot is running, it will create a log file named `latest.log` in the project directory.
+
+### Running with systemctl under Linux
 
 I'd recommend running the Bot with systemctl to keep the bot always online.
 The systemd (.service) file could look like this:
@@ -68,14 +84,6 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
-
-Optional you can run the Bot in a screen session with the `start.sh` and `stop.sh`.
-
-When the bot is running, it will create a log file named `latest.log`.
-
-### Configuration
-
-Modify the config template `config.ini`.
 
 ### Required Discord permissions
 
