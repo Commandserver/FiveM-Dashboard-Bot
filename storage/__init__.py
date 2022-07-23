@@ -42,7 +42,7 @@ def format_fivem_status(status: str) -> str:
         return ":grey_question: Keine Daten"
     elif lower_status == "all systems operational":
         return f":green_circle: {status}"
-    elif lower_status == "partial system outage":
+    elif lower_status == "partial system outage" or lower_status == "major system outage":
         return f":red_circle: {status}"
     elif lower_status == "minor service outage":
         return f":orange_circle: {status}"
