@@ -25,6 +25,7 @@ from storage import StatusZone
 class Client(discord.Client):
     def __init__(self, *, loop=None, **options):
         super().__init__(loop=loop, **options)
+        self.status_channel = None
         self.loop.create_task(self.update_serverstatus_loop())  # create update status loop
 
     async def on_error(self, event_method, *args, **kwargs):
@@ -33,6 +34,7 @@ class Client(discord.Client):
     async def on_ready(self):
         print(f"Logged in as {self.user.name} ({self.user.id})")
         logging.info(f"Logged in as {self.user.name} ({self.user.id})")
+        self.status_channel = self.get_channel(int(os.environ.get('STATUS_CHANNEL_ID')))
 
     async def on_message(self, message):
         if message.author.system or message.author.id == self.user.id:
@@ -40,8 +42,7 @@ class Client(discord.Client):
         lower_message = message.content.lower()
         if message.author.bot:
             if message.author.id == int(os.environ.get("BUILD_IN_BOT_ID", 0)):
-                # TODO restart-strings automatically chosen for the correct language
-                # (adapt them according to your language from https://github.com/citizenfx/txAdmin/tree/master/locale)
+                # modify this according to your language from https://github.com/citizenfx/txAdmin/tree/master/locale
                 if "wird neu gestartet".lower() in lower_message:
                     zone = StatusZone.fetch(cur)
                     zone.set_state_restarting()
@@ -78,14 +79,13 @@ class Client(discord.Client):
                     logging.log(logging.FATAL, "Unknown error in update status loop", exc_info=unknown_e)
 
     async def edit_status_message(self, embed, zone: storage.StatusZone):
-        channel = self.get_channel(int(os.environ.get('STATUS_CHANNEL_ID')))
-        if not channel:
+        if not self.status_channel:
             logging.error(f"No channel was found with that ID {os.environ.get('STATUS_CHANNEL_ID')}")
             return
         if not zone.status_message_id:
             # noinspection PyBroadException
             try:
-                await channel.purge(limit=100, bulk=True)
+                await self.status_channel.purge(limit=100, bulk=True)
             except discord.Forbidden:
                 logging.error("No permissions to clear the status-channel")
             except Exception as e:
@@ -93,7 +93,7 @@ class Client(discord.Client):
             else:
                 # noinspection PyBroadException
                 try:
-                    message = await channel.send(embed=embed)
+                    message = await self.status_channel.send(embed=embed)
                     zone.status_message_id = message.id
                 except discord.Forbidden:
                     logging.error("No permissions to send the status-message")
@@ -104,7 +104,7 @@ class Client(discord.Client):
             return
         # noinspection PyBroadException
         try:
-            message = channel.get_partial_message(zone.status_message_id)
+            message = self.status_channel.get_partial_message(zone.status_message_id)
             await message.edit(embed=embed, content=None, suppress=False)
             if zone.skipped_message_edit:
                 zone.skipped_message_edit = False
@@ -118,7 +118,7 @@ class Client(discord.Client):
                 # noinspection PyBroadException
                 try:
                     # try to get a message from the channel history before resending the hole status message
-                    async for message in channel.history(limit=11):
+                    async for message in self.status_channel.history(limit=11):
                         if message.author == self.user:  # check if its from the bot itself
                             # noinspection PyBroadException
                             try:
@@ -137,7 +137,7 @@ class Client(discord.Client):
                 # resend the status message...
                 # noinspection PyBroadException
                 try:
-                    await channel.purge(limit=100, bulk=True)
+                    await self.status_channel.purge(limit=100, bulk=True)
                 except discord.Forbidden:
                     logging.error("No permissions to clear the status-channel")
                 except Exception as e:
@@ -145,7 +145,7 @@ class Client(discord.Client):
                 else:
                     # noinspection PyBroadException
                     try:
-                        message = await channel.send(embed=embed)
+                        message = await self.status_channel.send(embed=embed)
                         zone.status_message_id = message.id
                     except discord.Forbidden:
                         logging.error("No permissions to send the status-message")
