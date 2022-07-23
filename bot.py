@@ -356,7 +356,7 @@ class Client(discord.Client):
             lower_status = status.lower()
             if lower_status == "all systems operational":
                 return ":green_circle: " + status
-            elif lower_status == "partial system outage":
+            elif lower_status == "partial system outage" or lower_status == "major system outage":
                 return ":red_circle: " + status
             elif lower_status == "minor service outage":
                 return ":orange_circle: " + status
