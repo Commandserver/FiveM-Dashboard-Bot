@@ -30,7 +30,7 @@ This branch (v2) is running with a database.
 ## Dependencies:
 
 - Python3.8 or higher
-- A MySQL Database like MariaDB
+- A MySQL based database like MariaDB
 - For required python packages see the `requirements.txt`
 
 Make sure you've installed it!
@@ -100,9 +100,9 @@ When i ran this bot on my own server, i had problems to get the downdetector sta
 
 So i seperated the downdetector status update to another file to have the ability to run this script elsewhere on other servers and only push the status to the database.
 
-The `request_cfx_status.py` requests the official fivem status frequency every ~30 seconds. Just run it with `python3 ./request_cfx_status.py`.
+The `cfx_status.py` requests the official fivem status frequency every ~30 seconds. Just run it with `python3 ./cfx_status.py`.
 
-The `request_downdetector_status.py` requests the fivem status from downdetector frequency around every 30 seconds too.
+The `downdetector_status.py` requests the fivem status from downdetector frequency around every 30 seconds too.
 
 The `request_maxplayers.py` is used to request the maximum player count of your own fivem server. The max player count isn't really a thing that gets often changed tbh, so it might be enough to call this script once per day or so. Or just ignore this script if you don't need an auto updating max-player count. 
 
@@ -154,7 +154,6 @@ The following _.timer_ file template can be used to run the max-players-script o
 ```unit file (systemd)
 [Unit]
 Description=Timer to requests the maxplayer count of your fivem server once per day
-Requires=fivem-dashboard-maxplayers.service
 
 [Timer]
 Unit=fivem-dashboard-maxplayers.service
@@ -168,6 +167,10 @@ WantedBy=timers.target
 Replace the "fivem-dashboard-maxplayers.service" with the same name (except the extension) as your max-player-unit file.
 
 [Read here more about systemd (Unit files)](https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files).
+
+## Contributing
+
+Feel free to create issues and pull requests :)
 
 ## Show your support
 

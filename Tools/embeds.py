@@ -9,7 +9,7 @@ from storage import get_cfx_status, get_down_detector_status, StatusZone
 
 
 def create_fivem_status_embed(cursor) -> discord.Embed:
-    """Create the embed of the fivem status
+    """Create the embed of the fivem status command
     :param cursor: The database cursor object
     """
     embed = discord.Embed()
