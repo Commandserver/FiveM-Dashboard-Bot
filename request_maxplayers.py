@@ -4,7 +4,6 @@
 # as the max player count are not important, It's enough to call this script one time per hour or day
 
 import asyncio
-import configparser
 import os
 import sys
 import traceback
@@ -14,6 +13,7 @@ import mariadb
 
 from Tools.useragent import Useragent
 from storage import StatusZone
+from dotenv import load_dotenv
 
 
 async def update_max_players():
@@ -22,7 +22,7 @@ async def update_max_players():
     async with aiohttp.ClientSession(headers=headers) as session:
         # noinspection PyBroadException
         try:
-            async with session.get(f"http://{config.get('Settings', 'fivem_server_ip')}/info.json",
+            async with session.get(f"http://{os.getenv('FIVEM_SERVER_IP')}/info.json",
                                    allow_redirects=False, compress=True, ssl=False) as response:
                 data = await response.json(encoding="UTF-8", content_type=None)
                 response.raise_for_status()
@@ -35,16 +35,14 @@ async def update_max_players():
 
 
 if __name__ == "__main__":
-    config = configparser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
-
+    load_dotenv()
     try:
         db = mariadb.connect(
-            user=config.get("MariaDB", "user"),
-            password=config.get("MariaDB", "password"),
-            host=config.get("MariaDB", "host"),
-            port=int(config.get("MariaDB", "port")),
-            database=config.get("MariaDB", "database")
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            host=os.getenv('DB_HOST'),
+            port=int(os.getenv('DB_PORT')),
+            database=os.getenv('DB_DATABASE'),
         )
     except mariadb.Error as e:
         print(f"Connection error with MariaDB Platform: {e}")

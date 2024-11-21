@@ -3,7 +3,6 @@
 # The Fivem-Dashboard Discord-Bot (v2) with database connection
 
 import asyncio
-import configparser
 import logging
 import os
 import sys
@@ -21,12 +20,39 @@ from Tools.embeds import create_fivem_status_embed, create_status_restart, creat
 from Tools.useragent import Useragent
 from storage import StatusZone
 
+load_dotenv()
+logging.basicConfig(
+    filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'latest.log'),
+    level=logging.INFO,
+    format="%(asctime)s:%(levelname)s:%(message)s"
+)
+logging.info("Started with python version " + sys.version)
 
-class Client(discord.Client):
+try:
+    db = mariadb.connect(
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        host=os.getenv('DB_HOST'),
+        port=int(os.getenv('DB_PORT')),
+        database=os.getenv('DB_DATABASE'),
+    )
+except mariadb.Error as e:
+    print(f"Connection error with MariaDB Platform: {e}")
+    logging.error(f"Connection error with MariaDB Platform: {e}")
+    sys.exit(1)
+
+db.auto_reconnect = True
+db.autocommit = True
+
+cur = db.cursor()
+
+
+class MyClient(discord.Client):
     def __init__(self, *, loop=None, **options):
         super().__init__(loop=loop, **options)
         self.status_channel = None
-        self.loop.create_task(self.update_serverstatus_loop())  # create update status loop
+        if os.getenv('STATUS_CHANNEL_ID') is not None:
+            self.loop.create_task(self.update_serverstatus_loop())  # create update status loop
 
     async def on_error(self, event_method, *args, **kwargs):
         logging.error(f"Unknown exception occurred in {event_method}: {traceback.format_exc()}")
@@ -34,24 +60,24 @@ class Client(discord.Client):
     async def on_ready(self):
         print(f"Logged in as {self.user.name} ({self.user.id})")
         logging.info(f"Logged in as {self.user.name} ({self.user.id})")
-        self.status_channel = self.get_channel(int(os.environ.get('STATUS_CHANNEL_ID')))
+        if os.getenv('STATUS_CHANNEL_ID'):
+            self.status_channel = self.get_channel(int(os.getenv('STATUS_CHANNEL_ID')))
 
     async def on_message(self, message):
         if message.author.system or message.author.id == self.user.id:
             return
         lower_message = message.content.lower()
         if message.author.bot:
-            if message.author.id == int(os.environ.get("BUILD_IN_BOT_ID", 0)):
-                # modify this according to your language from https://github.com/citizenfx/txAdmin/tree/master/locale
-                if "wird neu gestartet".lower() in lower_message:
+            if lower_message and message.author.id == int(os.getenv("BUILD_IN_BOT_ID", 0)):
+                if os.getenv('RESTART_DETECTION_RESTARTING').lower() in lower_message:
                     zone = StatusZone.fetch(cur)
                     zone.set_state_restarting()
                     # update status message
                     await self.edit_status_message(create_status_restart(zone, cur), zone)
-                elif "wird in 5 Minuten neu gestartet".lower() in lower_message:
+                elif os.getenv('RESTART_DETECTION_ABOUT_TO_RESTART', '').lower() in lower_message:
                     zone = StatusZone.fetch(cur)
-                    zone.next_restart_at = datetime.utcnow() + timedelta(minutes=5)
-        elif lower_message.startswith("!fivem"):
+                    zone.next_restart_at = datetime.now() + timedelta(minutes=5)
+        elif os.getenv('ENABLE_MESSAGE_COMMANDS', 'true').lower() == 'true' and lower_message.startswith("!fivem"):
             await message.channel.send(embed=create_fivem_status_embed(cur))
 
     async def update_serverstatus_loop(self):
@@ -59,7 +85,7 @@ class Client(discord.Client):
         await self.wait_until_ready()
         logging.info("Starting status-update loop")
         while True:
-            await asyncio.sleep(int(os.environ.get("STATUS_UPDATE_INTERVAL")))
+            await asyncio.sleep(int(os.getenv("STATUS_UPDATE_INTERVAL", 10)))
             headers = {"User-Agent": Useragent.random()}
             connector = aiohttp.TCPConnector(
                 ssl=False,
@@ -80,7 +106,7 @@ class Client(discord.Client):
 
     async def edit_status_message(self, embed, zone: storage.StatusZone):
         if not self.status_channel:
-            logging.error(f"No channel was found with that ID {os.environ.get('STATUS_CHANNEL_ID')}")
+            logging.error(f"No channel was found by the STATUS_CHANNEL_ID variable: {os.getenv('STATUS_CHANNEL_ID')}.")
             return
         if not zone.status_message_id:
             # noinspection PyBroadException
@@ -155,49 +181,18 @@ class Client(discord.Client):
                         logging.info("Resent status-message")
 
 
-if __name__ == "__main__":
-    load_dotenv()
-    logging.basicConfig(
-        filename=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'latest.log'),
-        level=logging.INFO,
-        format="%(asctime)s:%(levelname)s:%(message)s"
-    )
-    logging.info("Started with python version " + sys.version)
-    config = configparser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
-
-    os.environ["FIVEM_SERVER_IP"] = config.get("Settings", "fivem_server_ip")
-
-    try:
-        db = mariadb.connect(
-            user=config.get("MariaDB", "user"),
-            password=config.get("MariaDB", "password"),
-            host=config.get("MariaDB", "host"),
-            port=int(config.get("MariaDB", "port")),
-            database=config.get("MariaDB", "database")
-        )
-    except mariadb.Error as e:
-        print(f"Connection error with MariaDB Platform: {e}")
-        logging.error(f"Connection error with MariaDB Platform: {e}")
-        sys.exit(1)
-
-    db.auto_reconnect = True
-    db.autocommit = True
-
-    cur = db.cursor()
-
-    client = Client(
-        allowed_mentions=discord.AllowedMentions.none(),
-        guild_subscriptions=False,
-        activity=discord.Activity(
-            type=discord.ActivityType.watching,
-            name="/fivem",
-        ),
-        intents=discord.Intents(
-            guilds=True,
-            guild_messages=True,
-        ),
-    )
+client = MyClient(
+    allowed_mentions=discord.AllowedMentions.none(),
+    guild_subscriptions=False,
+    activity=discord.Activity(
+        type=discord.ActivityType.watching,
+        name="/fivem",
+    ),
+    intents=discord.Intents(
+        guilds=True,
+        guild_messages=True,
+    ),
+)
 
     slash = SlashCommand(client, sync_commands=True)
 
@@ -207,7 +202,9 @@ if __name__ == "__main__":
         await ctx.send(embed=create_fivem_status_embed(cur))
 
 
-    try:
-        client.run(config.get("Settings", "token"))
-    finally:
-        db.close()
+try:
+    if not os.getenv('BOT_TOKEN'):
+        raise Exception("No BOT_TOKEN environment variable")
+    client.run(os.getenv('BOT_TOKEN'))
+finally:
+    db.close()

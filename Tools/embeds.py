@@ -17,7 +17,7 @@ def create_fivem_status_embed(cursor) -> discord.Embed:
         name="FiveM Status",
         icon_url="https://fivem.net/favicon.png",
     )
-    embed.set_footer(text=os.environ.get("PROJECT_NAME"), icon_url=os.environ.get("ICON_URL", ""))
+    embed.set_footer(text=os.getenv("PROJECT_NAME"), icon_url=os.getenv("ICON_URL", ""))
     embed.timestamp = datetime.utcnow()
     add_fivem_status_to_embed(embed, cursor)
     return embed
@@ -68,13 +68,13 @@ def create_status_template() -> discord.Embed:
     """Main status message template. It's used to display the status-messages"""
     embed = discord.Embed()
     embed.set_author(
-        name=f"{os.environ.get('PROJECT_NAME')} Server Status",
-        icon_url=os.environ.get("ICON_URL", ""),
-        url=os.environ.get("WEBSITE_URL", "")
+        name=f"{os.getenv('PROJECT_NAME', 'My')} Server Status",
+        icon_url=os.getenv("ICON_URL", ''),
+        url=os.getenv("WEBSITE_URL", '')
     )
     embed.add_field(
         name="**FiveM:**",
-        value=f"`{os.environ.get('FIVEM_CONNECTION', '')}`",
+        value=f"`{os.getenv('FIVEM_CONNECTION', '')}`",
         inline=False,
     )
     embed.set_footer(text=f"Zuletzt aktualisiert {datetime.now().strftime('%H:%M:%S')}")
@@ -88,7 +88,7 @@ def create_status_online(zone: StatusZone, cursor) -> discord.Embed:
     :param cursor: The database cursor object
     """
     embed = create_status_template()
-    embed.title = f"**{os.environ.get('PROJECT_NAME')}** ist aktuell **Online!** :white_check_mark:\n\u200b"
+    embed.title = f"**{os.getenv('PROJECT_NAME')}** ist aktuell **Online!** :white_check_mark:\n\u200b"
     embed.colour = 0x74EE15
     embed.add_field(
         name="**Spieler:**",
@@ -107,9 +107,9 @@ def create_status_online(zone: StatusZone, cursor) -> discord.Embed:
         diff = zone.next_restart_at - datetime.utcnow()
         r_time = int(diff.total_seconds() / 60) + 1
         if r_time <= 1:
-            embed.description = f":warning: {os.environ.get('PROJECT_NAME')} wird gleich neu gestartet!\n\u200b"
+            embed.description = f":warning: {os.getenv('PROJECT_NAME')} wird gleich neu gestartet!\n\u200b"
         else:
-            embed.description = f":warning: {os.environ.get('PROJECT_NAME')} wird in {r_time} " \
+            embed.description = f":warning: {os.getenv('PROJECT_NAME')} wird in {r_time} " \
                                 f"Minuten neu gestartet!\n\u200b"
     add_fivem_status_to_embed(embed, cursor)
     return embed
@@ -121,7 +121,7 @@ def create_status_restart(zone: StatusZone, cursor) -> discord.Embed:
     :param cursor: The database cursor object
     """
     embed = create_status_template()
-    embed.title = f"**{os.environ.get('PROJECT_NAME')}** wird neu gestartet!\n\u200b"
+    embed.title = f"**{os.getenv('PROJECT_NAME')}** wird neu gestartet!\n\u200b"
     embed.colour = 0xFFAC00
     add_fivem_status_to_embed(embed, cursor)
     return embed
@@ -133,7 +133,7 @@ def create_status_offline(zone: StatusZone, cursor) -> discord.Embed:
     :param cursor: The database cursor object
     """
     embed = create_status_template()
-    embed.title = f"**{os.environ.get('PROJECT_NAME')}** ist aktuell **Offline!** :no_entry:\n\u200b"
+    embed.title = f"**{os.getenv('PROJECT_NAME')}** ist aktuell **Offline!** :no_entry:\n\u200b"
     embed.colour = 0xFF0000
     # add downtime field
     if zone.get_downtime_seconds() > 60:
@@ -152,7 +152,7 @@ def create_status_not_reachable(zone: StatusZone, cursor) -> discord.Embed:
     :param cursor: The database cursor object
     """
     embed = create_status_template()
-    embed.title = f"**{os.environ.get('PROJECT_NAME')}** ist aktuell **Nicht erreichbar!** :no_entry:\n\u200b"
+    embed.title = f"**{os.getenv('PROJECT_NAME')}** ist aktuell **Nicht erreichbar!** :no_entry:\n\u200b"
     embed.colour = 0xFF0000
     embed.description = "```ms >4000```\n\u200b"
     # add downtime field
@@ -172,6 +172,6 @@ def create_status_unknown(zone: StatusZone, cursor) -> discord.Embed:
     :param cursor: The database cursor object
     """
     embed = create_status_template()
-    embed.title = f"**{os.environ.get('PROJECT_NAME')}** ist aktuell **Unbekannt!** :black_circle:\n\u200b"
+    embed.title = f"**{os.getenv('PROJECT_NAME')}** ist aktuell **Unbekannt!** :black_circle:\n\u200b"
     add_fivem_status_to_embed(embed, cursor)
     return embed

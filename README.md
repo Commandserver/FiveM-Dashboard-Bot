@@ -85,6 +85,8 @@ CREATE TABLE FivemStatus (
 
 3. **Bot Configuration**
 
+Rename the `.env.example` to `.env`!
+
 Modify the config templates `config.ini` and `.env`.
 
 When creating your own bot on the [discord developer portal](https://discord.com/developers/applications), the bot needs the `bot` and `applications.commands` scope along with the following permissions:

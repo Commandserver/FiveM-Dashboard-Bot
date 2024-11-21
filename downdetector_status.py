@@ -3,7 +3,6 @@
 # A program which frequency requests the fivem status from downdetector and stores it in the database
 
 import asyncio
-import configparser
 import os
 import random
 import sys
@@ -14,12 +13,11 @@ from pyquery import PyQuery
 
 from Tools.useragent import Useragent
 from storage import set_downdetector_status
+from dotenv import load_dotenv
 
 
 async def request_downdetector_status_loop():
     """A loop which frequency requests the fivem status from downdetector and stores it in the database"""
-
-    url: str = "https://allestörungen.de/stoerung/fivem/"
 
     while True:
         response_code: int = 0
@@ -27,7 +25,8 @@ async def request_downdetector_status_loop():
         # noinspection PyBroadException
         try:
             headers = {'User-Agent': Useragent.random()}
-            response = requests.get(url, headers=headers, timeout=6)  # request the down-detector site
+            # request the down-detector site
+            response = requests.get(os.getenv('ALLE_STOERUNGEN_URL'), headers=headers, timeout=6)
 
             response_code = response.status_code
             response.raise_for_status()
@@ -56,16 +55,14 @@ async def request_downdetector_status_loop():
 
 
 if __name__ == "__main__":
-    config = configparser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
-
+    load_dotenv()
     try:
         db = mariadb.connect(
-            user=config.get("MariaDB", "user"),
-            password=config.get("MariaDB", "password"),
-            host=config.get("MariaDB", "host"),
-            port=int(config.get("MariaDB", "port")),
-            database=config.get("MariaDB", "database"),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            host=os.getenv('DB_HOST'),
+            port=int(os.getenv('DB_PORT')),
+            database=os.getenv('DB_DATABASE'),
             connect_timeout=40
         )
     except mariadb.Error as e:

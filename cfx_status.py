@@ -3,7 +3,6 @@
 # A program which frequency requests the official fivem status from cfx and stores it in the database
 
 import asyncio
-import configparser
 import os
 import random
 import sys
@@ -13,6 +12,7 @@ import aiohttp
 import mariadb
 
 from storage import set_cfx_status
+from dotenv import load_dotenv
 
 
 async def request_cfx_status_loop():
@@ -52,16 +52,15 @@ async def request_cfx_status_loop():
 
 
 if __name__ == "__main__":
-    config = configparser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
+    load_dotenv()
 
     try:
         db = mariadb.connect(
-            user=config.get("MariaDB", "user"),
-            password=config.get("MariaDB", "password"),
-            host=config.get("MariaDB", "host"),
-            port=int(config.get("MariaDB", "port")),
-            database=config.get("MariaDB", "database"),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            host=os.getenv('DB_HOST'),
+            port=int(os.getenv('DB_PORT')),
+            database=os.getenv('DB_DATABASE'),
             connect_timeout=40
         )
     except mariadb.Error as e:

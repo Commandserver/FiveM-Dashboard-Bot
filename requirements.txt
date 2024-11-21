@@ -6,4 +6,3 @@ mariadb
 requests==2.22.0
 pyquery
 python-dotenv
-configparser

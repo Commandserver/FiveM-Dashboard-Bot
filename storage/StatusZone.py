@@ -23,7 +23,7 @@ class StatusZone:
         self.__id: int = zone_id
         """The unique Database-Identifier"""
 
-        self.__max_players: int = 64
+        self.__max_players: int = int(os.getenv('FALLBACK_MAX_PLAYERS', 64))
         """the maximum players of the FiveM server. This will be displayed in the status message"""
         self.__custom_message: Optional[str] = None
         """A custom message which shows up in the description of the status message. Can be up to 1000 chars"""
@@ -167,7 +167,7 @@ class StatusZone:
             return
         # noinspection PyBroadException
         try:
-            url: str = f"http://{os.environ.get('FIVEM_SERVER_IP')}/players.json"
+            url: str = f"http://{os.getenv('FIVEM_SERVER_IP')}/players.json"
             async with session.get(url, allow_redirects=False, timeout=4.0, ssl=False) as response:
                 response.raise_for_status()
                 resp = await response.json(encoding="UTF-8", content_type=None)
