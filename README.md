@@ -1,13 +1,11 @@
 <div align="center">
-  <p>
-    <h1>
-      FiveM-Dashboard-Bot <small>v2</small>
-    </h1>
-    <h4>A Discord bot which displays the live-status of your FiveM Server.</h4>
-    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/Commandserver/FiveM-Dashboard-Bot">
-    <img alt="GitHub" src="https://img.shields.io/github/license/Commandserver/FiveM-Dashboard-Bot">
-    <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Commandserver/FiveM-Dashboard-Bot/total">
-  </p>
+
+<h1>FiveM-Dashboard-Bot v2.1</h1>
+
+<h4>A Discord bot which displays the live-status of your FiveM Server.</h4>
+
+![License](https://img.shields.io/github/license/Commandserver/FiveM-Dashboard-Bot)
+
 </div>
 
 ## About
@@ -27,7 +25,7 @@ This branch (v2) is running with a database.
 
 `!fivem` and `/fivem` to show the current fivem status from [AlleStörungen.de](https://allestörungen.de/stoerung/fivem/) and [status.cfx.re](https://status.cfx.re/)
 
-## Dependencies:
+## Dependencies
 
 - Python3.8 or higher
 - A MySQL based database like MariaDB
