@@ -102,8 +102,7 @@ class Client(discord.Client):
     show_down_detector_status: bool = True
     """Whether the down detector status should be displayed in the status message"""
 
-    def __init__(self, *, loop=None, **options):
-        super().__init__(loop=loop, **options)
+    async def setup_hook(self):
         self.loop.create_task(self.update_status_loop())
         self.loop.create_task(self.update_fivem_status_loop())
 
@@ -141,7 +140,7 @@ class Client(discord.Client):
                     url="https://status.cfx.re/",
                 )
                 embed.set_footer(text="FlixRP", icon_url="https://verwaltung.flixrp.net/favicon-32x32.png")
-                embed.timestamp = datetime.utcnow()
+                embed.timestamp = datetime.now()
                 embed.add_field(
                     name="\u200b",
                     value="**FiveM Status von [status.cfx.re](https://status.cfx.re/)**\n" +
@@ -265,7 +264,7 @@ class Client(discord.Client):
             inline=False,
         )
         embed.set_footer(text="Zuletzt aktualisiert")
-        embed.timestamp = datetime.utcnow()
+        embed.timestamp = datetime.now()
         return embed
 
     def add_fivem_status_to_status_message(self, embed):

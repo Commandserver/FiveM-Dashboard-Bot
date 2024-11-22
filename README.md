@@ -1,12 +1,11 @@
 <div align="center">
-  <p>
-    <h1>
-      FiveM-Dashboard-Bot
-    </h1>
-    <h4>A Discord bot which displays the live-status of your FiveM Server.</h4>
-    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/Commandserver/FiveM-Dashboard-Bot">
-    <img alt="GitHub" src="https://img.shields.io/github/license/Commandserver/FiveM-Dashboard-Bot">
-  </p>
+
+<h1>FiveM-Dashboard-Bot v1</h1>
+
+<h4>A Discord bot which displays the live-status of your FiveM Server.</h4>
+
+![License](https://img.shields.io/github/license/Commandserver/FiveM-Dashboard-Bot)
+
 </div>
 
 ## Features
@@ -21,6 +20,8 @@
 This is how the live-dashboard message can look like. It gets updated every 8 seconds.
 
 ![](https://user-images.githubusercontent.com/44061123/165137815-6acaf05d-99ce-4701-a6a4-ed6a3ed1dc71.png)
+
+Note: If you just want to have a `/fivem` slash command the get the fivem status on your server, you can also just [invite my public discord bot](https://discord.com/api/oauth2/authorize?client_id=871415662109659156&permissions=280576&scope=bot%20applications.commands) to your server rather than running your own instance of it.
 
 ## Commands
 
@@ -45,23 +46,28 @@ Message based commands:
 - Python3.8 or higher
 - For required python packages see the `requirements.txt`
 
-## Running
+## Getting started
 
-If you just want to have a `/fivem` slash command the get the fivem status on your server, you can also just [invite my public discord bot](https://discord.com/api/oauth2/authorize?client_id=871415662109659156&permissions=280576&scope=bot%20applications.commands) to your server rather than running your own instance of it.
+### Install python dependencies
 
-1. **Install dependencies**
+You can install the python packages globally via `pip3 install -r requirements.txt` or by creating a virtual environment like so:
 
-Just do `pip3 install -r requirements.txt`.
+```shell
+# setup virtual environment
+python3 -m venv venv
+# install python packages into the virtual environment
+./venv/bin/pip3 install -r requirements.txt
+# run the bot
+./venv/bin/python3 bot.py
+```
 
-2. **Config**
+### Configuration
 
 Rename the `config.ini.dist` to `config.ini` and configure it.
 
-3. **Run the bot**
+### Run the bot
 
-Just do `python3 bot.py`.
-
-Optional you can run the Bot in a [screen](https://linuxize.com/post/how-to-use-linux-screen/) session with the `start.sh` and `stop.sh`.
+Just run `./venv/bin/python3 bot.py` in your project directory.
 
 When the bot is running, it will create a log file named `latest.log` in the project directory.
 
@@ -76,9 +82,11 @@ Description=Discord FiveM Dashboard Bot
 After=network.target
 
 [Service]
-ExecStart=/path_to_the_project/bot.py
+WorkingDirectory=/path_to_project
+ExecStart=/path_to_project/venv/bin/python3 bot.py
 Type=simple
 Restart=always
+#User=fivem-dashboard
 
 [Install]
 WantedBy=multi-user.target
