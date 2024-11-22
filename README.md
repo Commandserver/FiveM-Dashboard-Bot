@@ -55,7 +55,7 @@ Just do `pip3 install -r requirements.txt`.
 
 2. **Config**
 
-Modify the config template `config.ini`.
+Rename the `config.ini.dist` to `config.ini` and configure it.
 
 3. **Run the bot**
 
