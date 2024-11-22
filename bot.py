@@ -134,7 +134,8 @@ class MyClient(discord.Client):
             await message.edit(embed=embed, content=None, suppress=False)
             if zone.skipped_message_edit:
                 zone.skipped_message_edit = False
-        except Exception:
+        except Exception as e:
+            logging.error("Failed to initially edit status-message", exc_info=e)
             if not zone.skipped_message_edit:
                 # skips one update interval before resending the hole status message
                 zone.skipped_message_edit = True
