@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import aiohttp
 import discord
 import mariadb
-from discord_slash import SlashCommand, SlashContext
+from discord import app_commands
 from dotenv import load_dotenv
 
 import storage
@@ -50,8 +50,16 @@ cur = db.cursor()
 class MyClient(discord.Client):
     def __init__(self, *, loop=None, **options):
         super().__init__(loop=loop, **options)
+        self.tree = app_commands.CommandTree(self)
         self.status_channel = None
-        if os.getenv('STATUS_CHANNEL_ID') is not None:
+
+    async def setup_hook(self):
+        if os.getenv('GUILD_ID'):
+            self.tree.copy_global_to(guild=discord.Object(int(os.getenv('GUILD_ID'))))
+            await self.tree.sync(guild=discord.Object(int(os.getenv('GUILD_ID'))))
+        else:
+            await self.tree.sync()
+        if os.getenv('STATUS_CHANNEL_ID'):
             self.loop.create_task(self.update_serverstatus_loop())  # create update status loop
 
     async def on_error(self, event_method, *args, **kwargs):
@@ -131,7 +139,7 @@ class MyClient(discord.Client):
         # noinspection PyBroadException
         try:
             message = self.status_channel.get_partial_message(zone.status_message_id)
-            await message.edit(embed=embed, content=None, suppress=False)
+            await message.edit(embed=embed, content=None)
             if zone.skipped_message_edit:
                 zone.skipped_message_edit = False
         except Exception as e:
@@ -195,12 +203,10 @@ client = MyClient(
     ),
 )
 
-    slash = SlashCommand(client, sync_commands=True)
 
-
-    @slash.slash(name="fivem", description="Show the current FiveM status")
-    async def slash_command_fivem(ctx: SlashContext):
-        await ctx.send(embed=create_fivem_status_embed(cur))
+@client.tree.command(name="fivem", description="Show the current FiveM status")
+async def slash_command_fivem(interaction: discord.Interaction):
+    await interaction.response.send_message(embed=create_fivem_status_embed(cur))
 
 
 try:

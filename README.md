@@ -17,6 +17,8 @@ This branch (v2) is running with a database.
 
 [See the releases](https://github.com/Commandserver/FiveM-Dashboard-Bot/releases)
 
+Note: If you just want to have the `/fivem` command on your server, you can also just [invite the bot to your server](https://discord.com/api/oauth2/authorize?client_id=871415662109659156&permissions=280576&scope=bot%20applications.commands) rather than running your own instance of it.
+
 ## Preview:
 
 ![](https://user-images.githubusercontent.com/44061123/165137815-6acaf05d-99ce-4701-a6a4-ed6a3ed1dc71.png)
@@ -31,17 +33,20 @@ This branch (v2) is running with a database.
 - A MySQL based database like MariaDB
 - For required python packages see the `requirements.txt`
 
-Make sure you've installed it!
+You can install the python packages globally via `pip3 install -r requirements.txt` or by creating a virtual environment like so:
 
-## Running
+```shell
+# setup virtual environment
+python3 -m venv venv
+# install python packages into the virtual environment
+./venv/bin/pip3 install -r requirements.txt
+# run the bot
+./venv/bin/python3 bot.py
+```
 
-If you just want to have the `/fivem` command on your server, you can also just [invite the bot to your server](https://discord.com/api/oauth2/authorize?client_id=871415662109659156&permissions=280576&scope=bot%20applications.commands) rather than running your own instance of it.
+## Installation
 
-1. **Install dependencies**
-
-Just do `pip3 install -r requirements.txt`
-
-2. **Create the database**
+### Create the database
 
 Use the following statements to create a schema, and user if you want to.
 
@@ -81,18 +86,19 @@ CREATE TABLE FivemStatus (
 ) COMMENT 'Status of Fivem';
 ```
 
-3. **Bot Configuration**
+### Bot Configuration
 
-Rename the `.env.example` to `.env`!
-
-Modify the config templates `config.ini` and `.env`.
+Rename the `.env.example` to `.env` and configure it!
 
 When creating your own bot on the [discord developer portal](https://discord.com/developers/applications), the bot needs the `bot` and `applications.commands` scope along with the following permissions:
 
-* Send messages
-* View channel
+* View Channel (Read messages)
+* Send Messages
+* Embed Links
+* Manage Messages
+* Read Message History
 
-Now you can launch your discord bot. Just do `python3 ./bot.py`. If you've setup all correctly, the status-message should appear in discord after some seconds.
+Now you can launch the `bot.py`. If you've setup all correctly, the status-message should appear in discord after some seconds.
 
 There are three more scripts which i need to explain.
 
@@ -100,7 +106,7 @@ When i ran this bot on my own server, i had problems to get the downdetector sta
 
 So i seperated the downdetector status update to another file to have the ability to run this script elsewhere on other servers and only push the status to the database.
 
-The `cfx_status.py` requests the official fivem status frequency every ~30 seconds. Just run it with `python3 ./cfx_status.py`.
+The `cfx_status.py` requests the official fivem status frequency every ~30 seconds.
 
 The `downdetector_status.py` requests the fivem status from downdetector frequency around every 30 seconds too.
 

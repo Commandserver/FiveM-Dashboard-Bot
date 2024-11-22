@@ -1,5 +1,4 @@
-discord==1.7.3
-discord-py-slash-command>=3.0.3
+discord.py
 aiodns
 aiohttp
 mariadb
