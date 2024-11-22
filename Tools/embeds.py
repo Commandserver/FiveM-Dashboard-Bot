@@ -77,8 +77,8 @@ def create_status_template() -> discord.Embed:
         value=f"`{os.getenv('FIVEM_CONNECTION', '')}`",
         inline=False,
     )
-    embed.set_footer(text=f"Zuletzt aktualisiert {datetime.now().strftime('%H:%M:%S')}")
-    embed.timestamp = datetime.utcnow()
+    embed.set_footer(text=f"Zuletzt aktualisiert")
+    embed.timestamp = datetime.now()
     return embed
 
 
