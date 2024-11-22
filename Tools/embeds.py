@@ -18,7 +18,7 @@ def create_fivem_status_embed(cursor) -> discord.Embed:
         icon_url="https://fivem.net/favicon.png",
     )
     embed.set_footer(text=os.getenv("PROJECT_NAME"), icon_url=os.getenv("ICON_URL", ""))
-    embed.timestamp = datetime.utcnow()
+    embed.timestamp = datetime.now()
     add_fivem_status_to_embed(embed, cursor)
     return embed
 
@@ -103,8 +103,8 @@ def create_status_online(zone: StatusZone, cursor) -> discord.Embed:
             inline=False,
         )
     # add restart-warn-message
-    if zone.next_restart_at and zone.next_restart_at > datetime.utcnow():
-        diff = zone.next_restart_at - datetime.utcnow()
+    if zone.next_restart_at and zone.next_restart_at > datetime.now():
+        diff = zone.next_restart_at - datetime.now()
         r_time = int(diff.total_seconds() / 60) + 1
         if r_time <= 1:
             embed.description = f":warning: {os.getenv('PROJECT_NAME')} wird gleich neu gestartet!\n\u200b"
